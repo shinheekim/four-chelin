@@ -1,7 +1,9 @@
 package com.example.fourchelin.domain.member.controller;
 
 import com.example.fourchelin.common.template.RspTemplate;
+import com.example.fourchelin.domain.member.dto.request.LoginRequest;
 import com.example.fourchelin.domain.member.dto.request.SignupRequest;
+import com.example.fourchelin.domain.member.dto.response.LoginResponse;
 import com.example.fourchelin.domain.member.dto.response.SignupResponse;
 import com.example.fourchelin.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,23 @@ public class MemberController {
                 .status(HttpStatus.CREATED)
                 .body(res);
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<RspTemplate<LoginResponse>> login(@RequestBody LoginRequest req) {
+
+        RspTemplate<LoginResponse> res = new RspTemplate<>(
+                HttpStatus.OK,
+                "로그인에 성공하였습니다.",
+                memberService.login(req)
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(res);
+
+    }
+
+
 
 
 }
