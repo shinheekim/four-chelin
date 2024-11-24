@@ -3,6 +3,7 @@ package com.example.fourchelin.domain.store.repository.support;
 import com.example.fourchelin.domain.store.entity.QStore;
 import com.example.fourchelin.domain.store.entity.Store;
 import com.example.fourchelin.domain.store.enums.StoreCategory;
+import com.example.fourchelin.domain.store.exception.StoreException;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -43,13 +44,24 @@ public class StoreRepositoryCustomImpl extends QuerydslRepositorySupport impleme
         if (category == null) {
             return null;
         }
-        return store.category.eq(StoreCategory.valueOf(category));
+
+        try {
+            return store.category.eq(StoreCategory.valueOf(category));
+        } catch (IllegalArgumentException ex) {
+            throw new StoreException("올바른 카테고리를 선택해주세요");
+        }
+
     }
 
     private BooleanExpression eqStar(Integer star) {
         if (star == null) {
             return null;
         }
+
+        if (star > 3 || star < 0) {
+            throw new StoreException("올바른 평가점수를 선택해주세요");
+        }
+
         return store.star.eq(star);
     }
 
@@ -57,6 +69,7 @@ public class StoreRepositoryCustomImpl extends QuerydslRepositorySupport impleme
         if (keyword == null || keyword.isEmpty()) {
             return null;
         }
+
         return store.storeName.containsIgnoreCase(keyword);
 
     }

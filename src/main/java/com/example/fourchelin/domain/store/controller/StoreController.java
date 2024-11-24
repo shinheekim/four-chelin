@@ -16,21 +16,15 @@ public class StoreController {
     private final StoreService storeService;
 
     @GetMapping()
-    public ResponseEntity<RspTemplate<StorePageResponse>> findStores(@RequestParam(required = false) String keyword,
-                                                                     @RequestParam(required = false) String category,
-                                                                     @RequestParam(required = false) Integer star,
-                                                                     @RequestParam(required = false, defaultValue = "1") int page,
-                                                                     @RequestParam(required = false, defaultValue = "10") int size,
-                                                                     @RequestParam(required = false, defaultValue = "updateAt") String criteria) {
+    public RspTemplate<StorePageResponse> findStores(@RequestParam(required = false) String keyword,
+                                                     @RequestParam(required = false) String category,
+                                                     @RequestParam(required = false) Integer star,
+                                                     @RequestParam(required = false, defaultValue = "1") int page,
+                                                     @RequestParam(required = false, defaultValue = "10") int size,
+                                                     @RequestParam(required = false, defaultValue = "updateAt") String criteria) {
 
-        RspTemplate<StorePageResponse> res = new RspTemplate<>(
-                HttpStatus.OK,
-                "조회하신 가게 리스트 입니다.",
-                storeService.findStores(keyword, category, star, page, size, criteria)
-        );
+        StorePageResponse res = storeService.findStores(keyword, category, star, page, size, criteria);
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(res);
+        return new RspTemplate<>(HttpStatus.OK, "조회하신 가게 리스트 입니다.", res);
     }
 }
