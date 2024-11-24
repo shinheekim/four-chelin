@@ -1,0 +1,34 @@
+package com.example.fourchelin.domain.store.entity;
+
+import com.example.fourchelin.common.baseentity.Timestamped;
+import com.example.fourchelin.domain.store.enums.StoreCategory;
+import com.example.fourchelin.domain.store.enums.StoreStatus;
+import jakarta.persistence.*;
+import lombok.Getter;
+
+@Entity
+@Getter
+public class Store extends Timestamped {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String storeName;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private StoreStatus status;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private StoreCategory category;
+
+    @Column(nullable = false)
+    private String address;
+
+    @Column
+    private Integer star;
+
+}
