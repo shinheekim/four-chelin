@@ -1,14 +1,21 @@
 package com.example.fourchelin.domain.store.dto.response;
 
-import com.example.fourchelin.domain.store.enums.StoreCategory;
-import com.example.fourchelin.domain.store.enums.StoreStatus;
+import com.example.fourchelin.domain.store.entity.Store;
+import lombok.Getter;
+import org.springframework.data.domain.Page;
 
-public record StorePageResponse(
-        Long id,
-        String storeName,
-        StoreStatus status,
-        StoreCategory category,
-        String address,
-        Integer star
-) {
+import java.util.List;
+
+@Getter
+public class StorePageResponse {
+
+    private List<StoreResponse> storeResponses;
+    private int totalPages;
+    private long totalElements;
+
+    public StorePageResponse(Page<Store> stores) {
+        this.storeResponses = stores.map(StoreResponse::to).stream().toList();
+        this.totalPages = stores.getTotalPages();
+        this.totalElements = stores.getTotalElements();
+    }
 }
