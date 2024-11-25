@@ -19,7 +19,7 @@ public class SearchHistory{
     @Column(nullable = false)
     private LocalDateTime searchDateTime;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "member_id")
-//    private Member member;
+    /*@ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;*/
 }
