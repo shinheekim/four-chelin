@@ -1,5 +1,6 @@
 package com.example.fourchelin.domain.search.service;
 
+import com.example.fourchelin.domain.member.entity.Member;
 import com.example.fourchelin.domain.search.entity.SearchHistory;
 import com.example.fourchelin.domain.search.repository.SearchHistoryRepository;
 import com.example.fourchelin.domain.store.dto.response.StorePageResponse;
@@ -21,24 +22,35 @@ public class SearchService {
     private final StoreRepository storeRepository;
     private final SearchHistoryRepository searchHistoryRepository;
 
-    public StorePageResponse searchStore(String keyword, int page, int size) {
+    public StorePageResponse searchStore(String keyword, int page, int size, Member member) {
         if (keyword == null || keyword.trim().isEmpty()) {
             throw new StoreException("검색어를 입력해주세요");
         }
 
-        saveSearchHistory(keyword);
+        // 인증된 사용자인 경우에만 검색기록 저장
+        if(member != null) {
+            saveOrUpdateSearchHistory(keyword, member);
+        }
 
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Store> stores = storeRepository.findByKeyword(keyword, pageable);
 
         return new StorePageResponse(stores);
     }
-    
-    private void saveSearchHistory(String keyword) {
-        SearchHistory searchHistory = SearchHistory.builder()
-                .keyword(keyword)
-                .searchDateTime(LocalDateTime.now())
-                .build();
-        searchHistoryRepository.save(searchHistory);
+
+    private void saveOrUpdateSearchHistory(String keyword, Member member) {
+        // 동일한 키워드가 존재한다면 searchDateTime만 update
+        SearchHistory existKeyword = searchHistoryRepository.findByKeywordAndMember(keyword, member);
+        if (existKeyword != null) {
+            existKeyword.updateSearchDateTime(LocalDateTime.now());
+            searchHistoryRepository.save(existKeyword);
+        } else {
+            SearchHistory searchHistory = SearchHistory.builder()
+                    .keyword(keyword)
+                    .searchDateTime(LocalDateTime.now())
+                    .member(member)
+                    .build();
+            searchHistoryRepository.save(searchHistory);
+        }
     }
 }
