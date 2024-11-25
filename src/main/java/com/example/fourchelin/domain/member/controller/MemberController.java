@@ -6,6 +6,8 @@ import com.example.fourchelin.domain.member.dto.request.SignupRequest;
 import com.example.fourchelin.domain.member.dto.response.LoginResponse;
 import com.example.fourchelin.domain.member.dto.response.SignupResponse;
 import com.example.fourchelin.domain.member.service.MemberService;
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,31 +24,18 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/signup")
-    public ResponseEntity<RspTemplate<SignupResponse>> signup(@RequestBody SignupRequest req) {
+    public RspTemplate<SignupResponse> signup(@RequestBody @Valid SignupRequest req) {
 
-        RspTemplate<SignupResponse> res = new RspTemplate<>(
-                HttpStatus.CREATED,
-                "회원가입에 성공하였습니다.",
-                memberService.signup(req)
-        );
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(res);
+        SignupResponse res = memberService.signup(req);
+        return new RspTemplate<>(HttpStatus.CREATED, "회원가입에 성공하였습니다.", res);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<RspTemplate<LoginResponse>> login(@RequestBody LoginRequest req) {
+    public RspTemplate<LoginResponse> login(HttpSession session, @RequestBody @Valid LoginRequest req) {
 
-        RspTemplate<LoginResponse> res = new RspTemplate<>(
-                HttpStatus.OK,
-                "로그인에 성공하였습니다.",
-                memberService.login(req)
-        );
+        LoginResponse res = memberService.login(session, req);
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(res);
+        return new RspTemplate<>(HttpStatus.CREATED, "로그인에 성공하였습니다.", res);
 
     }
 
