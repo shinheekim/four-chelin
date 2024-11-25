@@ -1,6 +1,7 @@
 package com.example.fourchelin.domain.waiting.entity;
 
 import com.example.fourchelin.common.baseentity.Timestamped;
+import com.example.fourchelin.domain.member.entity.Member;
 import com.example.fourchelin.domain.store.entity.Store;
 import com.example.fourchelin.domain.waiting.enums.WaitingMealType;
 import com.example.fourchelin.domain.waiting.enums.WaitingStatus;

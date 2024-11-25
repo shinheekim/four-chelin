@@ -1,5 +1,10 @@
 package com.example.fourchelin.domain.waiting.service;
 
+import com.example.fourchelin.domain.member.entity.Member;
+import com.example.fourchelin.domain.member.repository.MemberRepository;
+import com.example.fourchelin.domain.store.entity.Store;
+import com.example.fourchelin.domain.store.exception.StoreException;
+import com.example.fourchelin.domain.store.repository.StoreRepository;
 import com.example.fourchelin.domain.waiting.dto.request.WaitingRequest;
 import com.example.fourchelin.domain.waiting.dto.response.WaitingResponse;
 import com.example.fourchelin.domain.waiting.entity.Waiting;
@@ -15,18 +20,24 @@ import org.springframework.transaction.annotation.Transactional;
 public class WaitingService {
 
     private final WaitingRepository waitingRepository;
+    private final MemberRepository memberRepository;
+    private final StoreRepository storeRepository;
 
     @Transactional
-    public WaitingResponse createWaiting(WaitingRequest request, Long memberId) {
-        // 유저 관련 정보 확인 및 해당 전화번호로 이미 예약된 사항이 있는 지 확인하는 로직
-        // 예약된 사항이 있다면 예외 처리
+    public WaitingResponse createWaiting(WaitingRequest request, Member member) {
+        if (waitingRepository.existsByMemberAndStatus(member, WaitingStatus.WAITING)) {
+            throw new IllegalArgumentException("이미 예약된 사항이 존재합니다.");
+        }
+
+        Store store = storeRepository.findById(request.storeId())
+                .orElseThrow(() -> new StoreException("해당 가게가 존재하지 않습니다."));
         Waiting waiting = Waiting.builder()
-                .member(memberId)
-                .store(request.storeId())
+                .member(member)
+                .store(store)
                 .type(request.waitingType())
                 .mealType(request.mealType())
                 .status(WaitingStatus.WAITING)
-                .waitingNum()   // 대기 번호 부여 하는 법 고려
+                .waitingNumber(1)   // 대기 번호 부여 하는 법 고려
                 .personnel(request.personnel())
                 .build();
 
