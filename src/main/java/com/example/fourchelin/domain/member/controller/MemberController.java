@@ -37,8 +37,4 @@ public class MemberController {
         return new RspTemplate<>(HttpStatus.CREATED, "로그인에 성공하였습니다.", res);
 
     }
-
-
-
-
 }
