@@ -34,4 +34,14 @@ public class SearchHistory{
     public void updateSearchDateTime(LocalDateTime searchDateTime) {
         this.searchDateTime = searchDateTime;
     }
+    // 검색기록 추가 Test 관련 출력값을 보기 위해 작성
+    @Override
+    public String toString() {
+        return "SearchHistory{" +
+                "id=" + id +
+                ", keyword='" + keyword + '\'' +
+                ", member='" + (member != null ? member.getNickname() : "null") + '\'' +
+                ", searchDateTime=" + searchDateTime +
+                '}';
+    }
 }
