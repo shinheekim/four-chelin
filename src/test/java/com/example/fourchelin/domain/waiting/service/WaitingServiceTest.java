@@ -42,7 +42,7 @@ class WaitingServiceTest {
     void createWaiting_Success() {
         // given
         WaitingRequest request = new WaitingRequest(WaitingType.MOBILE, WaitingMealType.DINE_IN, 2, 1L);
-        Member member = createMember("010-1234-5678", "nickname", "password", MemberRole.USER);
+        Member member = createMember("01012345678", "nickname", "password", MemberRole.USER);
         Store store = new Store(1L, "Test Store", "서울시 강남구");
 
         when(waitingRepository.existsByMemberAndStatus(member, WaitingStatus.WAITING)).thenReturn(false);
@@ -63,7 +63,7 @@ class WaitingServiceTest {
     void createWaiting_AlreadyWaiting_Exception() {
         // given
         WaitingRequest request = new WaitingRequest(WaitingType.MOBILE, WaitingMealType.DINE_IN, 2, 1L);
-        Member member = createMember("010-1234-5678", "nickname", "password", MemberRole.USER);
+        Member member = createMember("01012345678", "nickname", "password", MemberRole.USER);
 
         when(waitingRepository.existsByMemberAndStatus(member, WaitingStatus.WAITING)).thenReturn(true);
 
@@ -78,7 +78,7 @@ class WaitingServiceTest {
     void createWaiting_StoreNotFound_Exception() {
         // given
         WaitingRequest request = new WaitingRequest(WaitingType.MOBILE, WaitingMealType.DINE_IN, 2, 1L);
-        Member member = createMember("010-1234-5678", "nickname", "password", MemberRole.USER);
+        Member member = createMember("01012345678", "nickname", "password", MemberRole.USER);
 
         when(waitingRepository.existsByMemberAndStatus(member, WaitingStatus.WAITING)).thenReturn(false);
         when(storeRepository.findById(request.storeId())).thenReturn(Optional.empty());

@@ -14,4 +14,5 @@ public record WaitingRequest(
         long personnel,
         @NotNull
         Long storeId
-) { }
+) {
+}
