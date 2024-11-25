@@ -34,7 +34,7 @@ public class MemberController {
 
         LoginResponse res = memberService.login(session, req);
 
-        return new RspTemplate<>(HttpStatus.CREATED, "로그인에 성공하였습니다.", res);
+        return new RspTemplate<>(HttpStatus.OK, "로그인에 성공하였습니다.", res);
 
     }
 }
