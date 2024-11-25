@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/waiting")
+@RequestMapping("/api/waitings")
 public class WaitingController {
     private final WaitingService waitingService;
 
