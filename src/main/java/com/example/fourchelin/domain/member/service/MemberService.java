@@ -12,9 +12,11 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class MemberService {
 
     private final MemberRepository memberRepository;
@@ -48,7 +50,6 @@ public class MemberService {
         }
 
         session.setAttribute("LOGIN_MEMBER", member);
-        System.out.println("session.getId() = " + session.getId());
 
         return LoginResponse.from(member);
 
