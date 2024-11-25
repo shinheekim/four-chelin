@@ -26,8 +26,12 @@ public class SearchHistory{
     private Member member;
 
     @Builder
-    public SearchHistory(String keyword, LocalDateTime searchDateTime) {
+    public SearchHistory(String keyword, LocalDateTime searchDateTime, Member member) {
         this.keyword = keyword;
+        this.searchDateTime = searchDateTime;
+        this.member = member;
+    }
+    public void updateSearchDateTime(LocalDateTime searchDateTime) {
         this.searchDateTime = searchDateTime;
     }
 }
