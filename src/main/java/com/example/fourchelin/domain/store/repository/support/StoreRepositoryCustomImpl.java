@@ -40,6 +40,15 @@ public class StoreRepositoryCustomImpl extends QuerydslRepositorySupport impleme
 
     }
 
+    public Page<Store> findByKeyword(String keyword, Pageable pageable) {
+        JPAQuery<Store> query = jpaQueryFactory
+                .selectFrom(store)
+                .where(store.storeName.containsIgnoreCase(keyword));
+
+        List<Store> stores = this.getQuerydsl().applyPagination(pageable, query).fetch();
+        return new PageImpl<>(stores, pageable, query.fetchCount());
+    }
+
     private BooleanExpression eqCategory(String category) {
         if (category == null) {
             return null;
@@ -66,11 +75,6 @@ public class StoreRepositoryCustomImpl extends QuerydslRepositorySupport impleme
     }
 
     private BooleanExpression containName(String keyword) {
-        if (keyword == null || keyword.isEmpty()) {
-            return null;
-        }
-
         return store.storeName.containsIgnoreCase(keyword);
-
     }
 }
