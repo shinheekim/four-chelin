@@ -8,4 +8,6 @@ import org.springframework.data.domain.Pageable;
 public interface StoreRepositoryCustom {
 
     Page<Store> findByConditionStores(String keyword, String category, Integer star, Pageable pageable);
+
+    Page<Store> findByKeyword(String keyword, Pageable pageable);
 }
