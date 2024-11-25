@@ -1,7 +1,9 @@
 package com.example.fourchelin.domain.search.entity;
 
+import com.example.fourchelin.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -19,7 +21,13 @@ public class SearchHistory{
     @Column(nullable = false)
     private LocalDateTime searchDateTime;
 
-    /*@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
-    private Member member;*/
+    private Member member;
+
+    @Builder
+    public SearchHistory(String keyword, LocalDateTime searchDateTime) {
+        this.keyword = keyword;
+        this.searchDateTime = searchDateTime;
+    }
 }
