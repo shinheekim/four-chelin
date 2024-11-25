@@ -1,6 +1,7 @@
 package com.example.fourchelin.domain.waiting.entity;
 
 import com.example.fourchelin.common.baseentity.Timestamped;
+import com.example.fourchelin.domain.member.entity.Member;
 import com.example.fourchelin.domain.store.entity.Store;
 import com.example.fourchelin.domain.waiting.enums.WaitingMealType;
 import com.example.fourchelin.domain.waiting.enums.WaitingStatus;
@@ -19,9 +20,9 @@ public class Waiting extends Timestamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-/*    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;*/
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id")
@@ -38,17 +39,17 @@ public class Waiting extends Timestamped {
     private WaitingStatus status;
 
     @Column(name = "waiting_number")
-    private int waitingNumber;  // 대기 번호
-    private int personnel;  // 인원 수
+    private long waitingNumber;  // 대기 번호
+    private long personnel;  // 인원 수
 
-/*    @Builder
-    public Waiting(User user, Store store, WaitingType type, WaitingMealType mealType, WaitingStatus status, int waitingNumber, int personnel) {
-        this.user = user;
+    @Builder
+    public Waiting(Member member, Store store, WaitingType type, WaitingMealType mealType, WaitingStatus status, long waitingNumber, long personnel) {
+        this.member = member;
         this.store = store;
         this.type = type;
         this.mealType = mealType;
         this.status = status;
         this.waitingNumber = waitingNumber;
         this.personnel = personnel;
-    }*/
+    }
 }
