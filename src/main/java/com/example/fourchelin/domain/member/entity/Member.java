@@ -1,13 +1,18 @@
 package com.example.fourchelin.domain.member.entity;
 
 import com.example.fourchelin.common.baseentity.Timestamped;
+import com.example.fourchelin.domain.member.enums.MemberRole;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Getter
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member extends Timestamped {
 
     @Id
@@ -23,13 +28,18 @@ public class Member extends Timestamped {
     @Column(nullable = false)
     private String password;
 
-    public Member(String phone, String nickname, String password) {
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private MemberRole role;
+
+    public Member(String phone, String nickname, String password, MemberRole role) {
         this.phone = phone;
         this.nickname = nickname;
         this.password = password;
+        this.role = role;
     }
 
-    public static Member of(String phone, String nickname, String password) {
-        return new Member(phone, nickname, password);
+    public static Member createMember(String phone, String nickname, String password, MemberRole role) {
+        return new Member(phone, nickname, password, role);
     }
 }
