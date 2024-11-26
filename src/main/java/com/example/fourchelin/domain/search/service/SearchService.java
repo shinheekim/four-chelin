@@ -1,7 +1,9 @@
 package com.example.fourchelin.domain.search.service;
 
 import com.example.fourchelin.domain.member.entity.Member;
+import com.example.fourchelin.domain.search.entity.PopularKeyword;
 import com.example.fourchelin.domain.search.entity.SearchHistory;
+import com.example.fourchelin.domain.search.repository.PopularKeywordRepository;
 import com.example.fourchelin.domain.search.repository.SearchHistoryRepository;
 import com.example.fourchelin.domain.store.dto.response.StorePageResponse;
 import com.example.fourchelin.domain.store.entity.Store;
@@ -14,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,6 +26,7 @@ public class SearchService {
 
     private final StoreRepository storeRepository;
     private final SearchHistoryRepository searchHistoryRepository;
+    private final PopularKeywordRepository popularKeywordRepository;
 
     @Transactional
     public StorePageResponse searchStore(String keyword, int page, int size, Member member) {
@@ -34,6 +38,7 @@ public class SearchService {
         if (member != null) {
             saveOrUpdateSearchHistory(keyword, member);
         }
+        saveOrUpdatePopularKeyword(keyword);
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Store> stores = storeRepository.findByKeyword(keyword, pageable);
         return new StorePageResponse(stores);
@@ -49,6 +54,7 @@ public class SearchService {
         if (searchHistories.isEmpty()) {
             return List.of();
         }
+
         return searchHistories.stream()
                 .map(SearchHistory::getKeyword)
                 .toList();
@@ -68,5 +74,16 @@ public class SearchService {
                     .build();
             searchHistoryRepository.save(searchHistory);
         }
+    }
+
+    private void saveOrUpdatePopularKeyword(String keyword) {
+        LocalDate today = LocalDate.now();
+        PopularKeyword popularKeyword = popularKeywordRepository.findByKeywordAndTrendDate(keyword, today)
+                .orElseGet(() -> new PopularKeyword(keyword, today));
+
+        if (popularKeyword.getSearchCount() > 0) {
+            popularKeyword.incrementCount();
+        }
+        popularKeywordRepository.save(popularKeyword);
     }
 }
