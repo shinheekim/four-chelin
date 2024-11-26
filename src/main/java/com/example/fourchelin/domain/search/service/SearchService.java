@@ -37,7 +37,7 @@ public class SearchService {
         return new StorePageResponse(stores);
     }
 
-    public List<String> searchKeywordStore(Member member) {
+    public List<String> searchKeyword(Member member) {
         // 인증 유저가 아닌 경우
         if (member == null) {
             return List.of();

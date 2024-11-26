@@ -24,10 +24,10 @@ public class SearchController {
     private final SearchService searchService;
 
     @GetMapping
-    public RspTemplate<List<String>> searchKeywordStore(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public RspTemplate<List<String>> searchKeyword(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         // 인증된 유저일 경우 member 객체 가져오고 아니면 null
         Member member = (userDetails != null) ? userDetails.getMember() : null;
-        List<String> res = searchService.searchKeywordStore(member);
+        List<String> res = searchService.searchKeyword(member);
         return new RspTemplate<>(HttpStatus.OK, res);
     }
 
