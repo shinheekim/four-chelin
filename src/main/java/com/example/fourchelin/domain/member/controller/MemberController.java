@@ -6,6 +6,7 @@ import com.example.fourchelin.domain.member.dto.request.SignupRequest;
 import com.example.fourchelin.domain.member.dto.response.LoginResponse;
 import com.example.fourchelin.domain.member.dto.response.SignupResponse;
 import com.example.fourchelin.domain.member.service.MemberService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +31,9 @@ public class MemberController {
     }
 
     @PostMapping("/login")
-    public RspTemplate<LoginResponse> login(HttpSession session, @RequestBody @Valid LoginRequest req) {
+    public RspTemplate<LoginResponse> login(HttpServletRequest httpRequest, @RequestBody @Valid LoginRequest req) {
 
+        HttpSession session = httpRequest.getSession(true);
         LoginResponse res = memberService.login(session, req);
 
         return new RspTemplate<>(HttpStatus.OK, "로그인에 성공하였습니다.", res);
