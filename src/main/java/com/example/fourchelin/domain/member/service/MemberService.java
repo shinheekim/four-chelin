@@ -1,9 +1,12 @@
 package com.example.fourchelin.domain.member.service;
 
+import com.example.fourchelin.domain.member.dto.request.DeleteMemberRequest;
 import com.example.fourchelin.domain.member.dto.request.LoginRequest;
 import com.example.fourchelin.domain.member.dto.request.SignupRequest;
+import com.example.fourchelin.domain.member.dto.request.UpdateMemberRequest;
 import com.example.fourchelin.domain.member.dto.response.LoginResponse;
 import com.example.fourchelin.domain.member.dto.response.SignupResponse;
+import com.example.fourchelin.domain.member.dto.response.UpdateMemberResponse;
 import com.example.fourchelin.domain.member.entity.Member;
 import com.example.fourchelin.domain.member.enums.MemberRole;
 import com.example.fourchelin.domain.member.exception.MemberException;
@@ -53,5 +56,27 @@ public class MemberService {
 
         return LoginResponse.from(member);
 
+    }
+
+    public UpdateMemberResponse updateMember(UpdateMemberRequest req, Member member) {
+
+        String nickname = req.nickname();
+        String password = passwordEncoder.encode(req.password());
+
+        Member updateMember = member.updateMember(nickname, password);
+        memberRepository.save(updateMember);
+        return UpdateMemberResponse.from(updateMember);
+
+    }
+
+    public void deleteMember(DeleteMemberRequest req, Member member) {
+
+        String rawPassword = req.password();
+
+        if (!passwordEncoder.matches(rawPassword, member.getPassword())) {
+            throw new MemberException("패스워드가 일치하지 않습니다.");
+        }
+
+        memberRepository.deleteById(member.getId());
     }
 }

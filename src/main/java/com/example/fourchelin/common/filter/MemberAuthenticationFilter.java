@@ -59,6 +59,7 @@ public class MemberAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return StringUtils.startsWithIgnoreCase(request.getRequestURI(), "/api/members");
+        return StringUtils.startsWithIgnoreCase(request.getRequestURI(), "/api/members/signup") ||
+                StringUtils.startsWithIgnoreCase(request.getRequestURI(), "/api/members/login");
     }
 }
