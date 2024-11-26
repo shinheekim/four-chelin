@@ -7,7 +7,6 @@ import com.example.fourchelin.domain.store.dto.response.StorePageResponse;
 import com.example.fourchelin.domain.store.entity.Store;
 import com.example.fourchelin.domain.store.exception.StoreException;
 import com.example.fourchelin.domain.store.repository.StoreRepository;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
