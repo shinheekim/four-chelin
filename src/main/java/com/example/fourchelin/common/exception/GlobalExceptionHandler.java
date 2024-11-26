@@ -20,15 +20,6 @@ public class GlobalExceptionHandler {
         return getErrorResponse(status, ex.getMessage());
     }
 
-    private ResponseEntity<Map<String, Object>> getErrorResponse(HttpStatus status, String message) {
-        Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("staus: ", status.name());
-        errorResponse.put("code: ", status.value());
-        errorResponse.put("message: ", message);
-
-        return new ResponseEntity<>(errorResponse, status);
-    }
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -38,5 +29,14 @@ public class GlobalExceptionHandler {
                 errors.put(error.getField(), error.getDefaultMessage())
         );
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    private ResponseEntity<Map<String, Object>> getErrorResponse(HttpStatus status, String message) {
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("staus: ", status.name());
+        errorResponse.put("code: ", status.value());
+        errorResponse.put("message: ", message);
+
+        return new ResponseEntity<>(errorResponse, status);
     }
 }

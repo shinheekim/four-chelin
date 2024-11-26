@@ -1,5 +1,7 @@
 package com.example.fourchelin.common.config;
 
+import com.example.fourchelin.common.exception.CustomAccessDeniedHandler;
+import com.example.fourchelin.common.exception.CustomAuthenticationEntryPoint;
 import com.example.fourchelin.common.filter.MemberAuthenticationFilter;
 import com.example.fourchelin.common.security.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,14 @@ public class WebSecurityConfig {
         http.authorizeHttpRequests((authorization) ->
                 authorization.requestMatchers("/api/members/**").permitAll()
                         .anyRequest().authenticated()
+        );
+
+        http.exceptionHandling((except) ->
+                except.authenticationEntryPoint(new CustomAuthenticationEntryPoint())
+        );
+
+        http.exceptionHandling((except) ->
+                except.accessDeniedHandler(new CustomAccessDeniedHandler())
         );
 
         http.addFilterBefore(memberAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
