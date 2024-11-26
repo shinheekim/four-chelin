@@ -31,8 +31,8 @@ public class SearchHistory{
         this.searchDateTime = searchDateTime;
         this.member = member;
     }
-    public void updateSearchDateTime(LocalDateTime searchDateTime) {
-        this.searchDateTime = searchDateTime;
+    public void updateSearchDateTime(LocalDateTime newSearchDateTime) {
+        this.searchDateTime = newSearchDateTime;
     }
     // 검색기록 추가 Test 관련 출력값을 보기 위해 작성
     @Override
