@@ -215,7 +215,7 @@ class SearchServiceTest {
         when(searchHistoryRepository.keywordFindByMember(any(Member.class))).thenReturn(limitedSearchHistories);
 
 
-        List<String> keywords = searchService.searchKeywordStore(member);
+        List<String> keywords = searchService.searchKeyword(member);
 
         System.out.println("검색어 목록: " + keywords);
 
@@ -234,7 +234,7 @@ class SearchServiceTest {
 
         when(searchHistoryRepository.keywordFindByMember(any())).thenReturn(Collections.emptyList());
 
-        List<String> keywords = searchService.searchKeywordStore(member);
+        List<String> keywords = searchService.searchKeyword(member);
 
         System.out.println("검색어 목록: " + keywords);
 
