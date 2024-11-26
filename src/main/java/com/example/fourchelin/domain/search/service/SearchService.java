@@ -4,7 +4,6 @@ import com.example.fourchelin.domain.member.entity.Member;
 import com.example.fourchelin.domain.search.entity.SearchHistory;
 import com.example.fourchelin.domain.search.repository.SearchHistoryRepository;
 import com.example.fourchelin.domain.store.dto.response.StorePageResponse;
-import com.example.fourchelin.domain.store.dto.response.StoreResponse;
 import com.example.fourchelin.domain.store.entity.Store;
 import com.example.fourchelin.domain.store.exception.StoreException;
 import com.example.fourchelin.domain.store.repository.StoreRepository;
@@ -30,19 +29,17 @@ public class SearchService {
         }
 
         // 인증된 사용자인 경우에만 검색기록 저장
-        if(member != null) {
+        if (member != null) {
             saveOrUpdateSearchHistory(keyword, member);
         }
-
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Store> stores = storeRepository.findByKeyword(keyword, pageable);
-
         return new StorePageResponse(stores);
     }
 
     public List<String> searchKeywordStore(Member member) {
         // 인증 유저가 아닌 경우
-        if(member == null) {
+        if (member == null) {
             return List.of();
         }
         List<SearchHistory> searchHistories = searchHistoryRepository.keywordFindByMember(member);
@@ -60,7 +57,6 @@ public class SearchService {
         SearchHistory existKeyword = searchHistoryRepository.findByKeywordAndMember(keyword, member);
         if (existKeyword != null) {
             existKeyword.updateSearchDateTime(LocalDateTime.now());
-            searchHistoryRepository.save(existKeyword);
         } else {
             SearchHistory searchHistory = SearchHistory.builder()
                     .keyword(keyword)
