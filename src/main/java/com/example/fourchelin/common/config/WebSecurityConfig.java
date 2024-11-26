@@ -21,13 +21,14 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         http.csrf((csrf) -> csrf.disable());
         http.sessionManagement((session) ->
                 session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
         );
 
         http.authorizeHttpRequests((authorization) ->
-                authorization.requestMatchers("/api/members/**").permitAll()
+                authorization.requestMatchers("/api/members/**", "/api/searches/**").permitAll()
                         .anyRequest().authenticated()
         );
 
