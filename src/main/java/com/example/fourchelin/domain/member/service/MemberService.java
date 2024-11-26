@@ -4,6 +4,7 @@ import com.example.fourchelin.domain.member.dto.request.DeleteMemberRequest;
 import com.example.fourchelin.domain.member.dto.request.LoginRequest;
 import com.example.fourchelin.domain.member.dto.request.SignupRequest;
 import com.example.fourchelin.domain.member.dto.request.UpdateMemberRequest;
+import com.example.fourchelin.domain.member.dto.response.FindMemberResponse;
 import com.example.fourchelin.domain.member.dto.response.LoginResponse;
 import com.example.fourchelin.domain.member.dto.response.SignupResponse;
 import com.example.fourchelin.domain.member.dto.response.UpdateMemberResponse;
@@ -13,6 +14,7 @@ import com.example.fourchelin.domain.member.exception.MemberException;
 import com.example.fourchelin.domain.member.repository.MemberRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +35,10 @@ public class MemberService {
         MemberRole role = req.role();
 
         Member createMember = Member.createMember(phone, nickname, password, role);
+
+        if (memberRepository.findByPhone(createMember.getPhone()).isPresent()) {
+            throw new MemberException("이미 가입한 회원입니다.");
+        }
 
         memberRepository.save(createMember);
 
@@ -78,5 +84,15 @@ public class MemberService {
         }
 
         memberRepository.deleteById(member.getId());
+    }
+
+
+    public FindMemberResponse findMember(Member member) {
+
+        Member findMember = memberRepository.findByPhone(member.getPhone()).orElseThrow(() ->
+                new MemberException("회원정보가 존재하지 않습니다.")
+        );
+
+        return FindMemberResponse.from(findMember);
     }
 }

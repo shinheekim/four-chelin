@@ -6,6 +6,7 @@ import com.example.fourchelin.domain.member.dto.request.DeleteMemberRequest;
 import com.example.fourchelin.domain.member.dto.request.LoginRequest;
 import com.example.fourchelin.domain.member.dto.request.SignupRequest;
 import com.example.fourchelin.domain.member.dto.request.UpdateMemberRequest;
+import com.example.fourchelin.domain.member.dto.response.FindMemberResponse;
 import com.example.fourchelin.domain.member.dto.response.LoginResponse;
 import com.example.fourchelin.domain.member.dto.response.SignupResponse;
 import com.example.fourchelin.domain.member.dto.response.UpdateMemberResponse;
@@ -64,5 +65,17 @@ public class MemberController {
         return new RspTemplate<>(HttpStatus.OK, "회원정보 삭제에 성공하였습니다.");
 
     }
+
+    @GetMapping("")
+    public RspTemplate<FindMemberResponse> findMember(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        Member member = userDetails.getMember();
+        FindMemberResponse res = memberService.findMember(member);
+
+        return new RspTemplate<>(HttpStatus.OK, "로그인한 회원정보를 불러왔습니다.", res);
+
+    }
+
+
 
 }
