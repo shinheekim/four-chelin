@@ -11,7 +11,6 @@ import com.example.fourchelin.domain.store.exception.StoreException;
 import com.example.fourchelin.domain.store.repository.StoreRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -21,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -189,7 +189,58 @@ class SearchServiceTest {
         assertThat(existingHistory.getSearchDateTime()).isAfter(LocalDateTime.now().minusMinutes(1));
     }
 
-// []===========================================================================================
+    // [검색기록 조회 테스트]===========================================================================================
+
+    @Test
+    void searchKeyword_Success() {
+
+        Member member = new Member("01012345678", "user1", "password", MemberRole.USER);
+
+        List<SearchHistory> searchHistories = List.of(
+                SearchHistory.builder().keyword("검색어1").member(member).searchDateTime(LocalDateTime.now().minusMinutes(1)).build(),
+                SearchHistory.builder().keyword("검색어2").member(member).searchDateTime(LocalDateTime.now().minusMinutes(2)).build(),
+                SearchHistory.builder().keyword("검색어3").member(member).searchDateTime(LocalDateTime.now().minusMinutes(3)).build(),
+                SearchHistory.builder().keyword("검색어4").member(member).searchDateTime(LocalDateTime.now().minusMinutes(4)).build(),
+                SearchHistory.builder().keyword("검색어5").member(member).searchDateTime(LocalDateTime.now().minusMinutes(5)).build(),
+                SearchHistory.builder().keyword("검색어6").member(member).searchDateTime(LocalDateTime.now().minusMinutes(6)).build(),
+                SearchHistory.builder().keyword("검색어7").member(member).searchDateTime(LocalDateTime.now().minusMinutes(7)).build(),
+                SearchHistory.builder().keyword("검색어8").member(member).searchDateTime(LocalDateTime.now().minusMinutes(8)).build(),
+                SearchHistory.builder().keyword("검색어9").member(member).searchDateTime(LocalDateTime.now().minusMinutes(9)).build(),
+                SearchHistory.builder().keyword("검색어10").member(member).searchDateTime(LocalDateTime.now().minusMinutes(10)).build(),
+                SearchHistory.builder().keyword("검색어11").member(member).searchDateTime(LocalDateTime.now().minusMinutes(11)).build(),
+                SearchHistory.builder().keyword("검색어12").member(member).searchDateTime(LocalDateTime.now().minusMinutes(12)).build()
+        );
+
+        List<SearchHistory> limitedSearchHistories = searchHistories.subList(0, 10);
+        when(searchHistoryRepository.keywordFindByMember(any(Member.class))).thenReturn(limitedSearchHistories);
 
 
+        List<String> keywords = searchService.searchKeywordStore(member);
+
+        System.out.println("검색어 목록: " + keywords);
+
+        assertThat(keywords).isNotNull();
+        assertThat(keywords).hasSize(10);
+        assertThat(keywords).containsExactly(
+                "검색어1", "검색어2", "검색어3", "검색어4", "검색어5",
+                "검색어6", "검색어7", "검색어8", "검색어9", "검색어10"
+        );
+    }
+
+    @Test
+    void searchKeyword_Success_NotMember() {
+        // 인증되지 않은 사용자
+        Member member = null;
+
+        when(searchHistoryRepository.keywordFindByMember(any())).thenReturn(Collections.emptyList());
+
+        List<String> keywords = searchService.searchKeywordStore(member);
+
+        System.out.println("검색어 목록: " + keywords);
+
+        assertThat(keywords).isNotNull();
+        assertThat(keywords).isEmpty();
+    }
+
+    // []===========================================================================================
 }
