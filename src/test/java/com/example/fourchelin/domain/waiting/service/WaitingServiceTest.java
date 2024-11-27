@@ -11,6 +11,7 @@ import com.example.fourchelin.domain.waiting.entity.Waiting;
 import com.example.fourchelin.domain.waiting.enums.WaitingMealType;
 import com.example.fourchelin.domain.waiting.enums.WaitingStatus;
 import com.example.fourchelin.domain.waiting.enums.WaitingType;
+import com.example.fourchelin.domain.waiting.exception.WaitingAlreadyExistException;
 import com.example.fourchelin.domain.waiting.repository.WaitingRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,9 +35,6 @@ class WaitingServiceTest {
     @Mock
     private StoreRepository storeRepository;
 
-    @Mock
-    private WaitingQueueService waitingQueueService;
-
     @InjectMocks
     private WaitingService waitingService;
 
@@ -50,7 +48,6 @@ class WaitingServiceTest {
 
         when(waitingRepository.existsByMemberAndStatus(member, WaitingStatus.WAITING)).thenReturn(false);
         when(storeRepository.findById(request.storeId())).thenReturn(Optional.of(store));
-        when(waitingQueueService.sizeOfQueue()).thenReturn(3);
 
         // when
         WaitingResponse response = waitingService.createWaiting(request, member);
@@ -59,7 +56,6 @@ class WaitingServiceTest {
         assertThat(response).isNotNull();
         assertThat(response.storeName()).isEqualTo("Test Store");
         assertThat(response.waitingStatus()).isEqualTo(WaitingStatus.WAITING);
-        assertThat(response.waitingNumber()).isEqualTo(4);
         verify(waitingRepository, times(1)).save(any(Waiting.class));
     }
 
@@ -74,7 +70,7 @@ class WaitingServiceTest {
 
         // when & then
         assertThatThrownBy(() -> waitingService.createWaiting(request, member))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(WaitingAlreadyExistException.class)
                 .hasMessage("이미 예약된 사항이 존재합니다.");
     }
 

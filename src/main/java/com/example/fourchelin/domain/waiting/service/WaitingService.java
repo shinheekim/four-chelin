@@ -23,7 +23,6 @@ public class WaitingService {
     private final WaitingRepository waitingRepository;
     private final MemberRepository memberRepository;
     private final StoreRepository storeRepository;
-    private final WaitingQueueService waitingQueueService;
 
     @Transactional
     public WaitingResponse createWaiting(WaitingRequest request, Member member) {
@@ -32,18 +31,19 @@ public class WaitingService {
         Store store = storeRepository.findById(request.storeId())
                 .orElseThrow(() -> new StoreException("해당 가게가 존재하지 않습니다."));
 
+        Long waitingCount = waitingRepository.countByStoreAndStatus(store, WaitingStatus.WAITING);
+
         Waiting waiting = Waiting.builder()
                 .member(member)
                 .store(store)
                 .type(request.waitingType())
                 .mealType(request.mealType())
                 .status(WaitingStatus.WAITING)
-                .waitingNumber(waitingQueueService.sizeOfQueue() + 1)
+                .waitingNumber(waitingCount + 1)
                 .personnel(request.personnel())
                 .build();
 
         waitingRepository.save(waiting);
-        waitingQueueService.addToQueue(waiting.getId());
         return WaitingResponse.from(waiting);
     }
 
