@@ -32,7 +32,7 @@ public class Store extends Timestamped {
     private String address;
 
     @Column
-    private Integer star;
+    private int star;
 
     public Store(Long id, String storeName, String address) {
         this.id = id;
