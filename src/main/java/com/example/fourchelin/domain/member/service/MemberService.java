@@ -78,6 +78,7 @@ public class MemberService {
 
     }
 
+    @CacheEvict(value = "member", key = "#member.id", beforeInvocation = false)
     public void deleteMember(DeleteMemberRequest req, Member member) {
 
         String rawPassword = req.password();
