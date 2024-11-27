@@ -11,6 +11,7 @@ import com.example.fourchelin.domain.waiting.entity.Waiting;
 import com.example.fourchelin.domain.waiting.enums.WaitingMealType;
 import com.example.fourchelin.domain.waiting.enums.WaitingStatus;
 import com.example.fourchelin.domain.waiting.enums.WaitingType;
+import com.example.fourchelin.domain.waiting.exception.WaitingAlreadyExistException;
 import com.example.fourchelin.domain.waiting.repository.WaitingRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -69,7 +70,7 @@ class WaitingServiceTest {
 
         // when & then
         assertThatThrownBy(() -> waitingService.createWaiting(request, member))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(WaitingAlreadyExistException.class)
                 .hasMessage("이미 예약된 사항이 존재합니다.");
     }
 
