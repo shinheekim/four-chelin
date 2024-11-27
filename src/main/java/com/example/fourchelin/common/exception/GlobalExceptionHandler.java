@@ -1,6 +1,7 @@
 package com.example.fourchelin.common.exception;
 
 import com.example.fourchelin.domain.member.exception.MemberException;
+import com.example.fourchelin.domain.waiting.exception.WaitingAlreadyExistException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -17,6 +18,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MemberException.class)
     public ResponseEntity<Map<String, Object>> handleMemberException(MemberException ex) {
         HttpStatus status = HttpStatus.UNAUTHORIZED;
+        return getErrorResponse(status, ex.getMessage());
+    }
+
+    @ExceptionHandler(WaitingAlreadyExistException.class)
+    public ResponseEntity<Map<String, Object>> handleWaitingAlreadyExistException(WaitingAlreadyExistException ex) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
         return getErrorResponse(status, ex.getMessage());
     }
 
