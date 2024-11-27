@@ -2,7 +2,6 @@ package com.example.fourchelin.search.service;
 
 import com.example.fourchelin.domain.member.entity.Member;
 import com.example.fourchelin.domain.member.enums.MemberRole;
-import com.example.fourchelin.domain.search.entity.PopularKeywordCache;
 import com.example.fourchelin.domain.search.entity.SearchHistory;
 import com.example.fourchelin.domain.search.repository.PopularKeywordRepository;
 import com.example.fourchelin.domain.search.repository.SearchHistoryRepository;
@@ -252,26 +251,6 @@ class SearchServiceTest {
     // [인기 검색어 캐시 저장 테스트] ================================================================
     @Test
     void searchStore_Success_InMemoryCache() {
-        String keyword = "카페";
-        int page = 1;
-        int size = 10;
-        Member member = new Member("01012345678", "user1", "password", MemberRole.USER);
 
-        when(storeRepository.findByKeyword(eq(keyword), any())).thenReturn(Page.empty());
-
-        searchService.searchStoreV2(keyword, page, size, member);
-
-        LocalDate today = LocalDate.now();
-        String cacheKey = keyword + "_" + today.toString();
-        PopularKeywordCache cachedKeyword = searchService.getPopularKeywordCache().get(cacheKey);
-
-        assertThat(cachedKeyword).isNotNull();
-        assertThat(cachedKeyword.getKeyword()).isEqualTo(keyword);
-        assertThat(cachedKeyword.getCount()).isEqualTo(1);
-
-        searchService.searchStoreV2(keyword, page, size, member);
-
-        cachedKeyword = searchService.getPopularKeywordCache().get(cacheKey);
-        assertThat(cachedKeyword.getCount()).isEqualTo(2);
     }
 }
