@@ -2,7 +2,9 @@ package com.example.fourchelin.search.service;
 
 import com.example.fourchelin.domain.member.entity.Member;
 import com.example.fourchelin.domain.member.enums.MemberRole;
+import com.example.fourchelin.domain.search.entity.PopularKeywordCache;
 import com.example.fourchelin.domain.search.entity.SearchHistory;
+import com.example.fourchelin.domain.search.repository.PopularKeywordRepository;
 import com.example.fourchelin.domain.search.repository.SearchHistoryRepository;
 import com.example.fourchelin.domain.search.service.SearchService;
 import com.example.fourchelin.domain.store.dto.response.StorePageResponse;
@@ -19,9 +21,11 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -35,6 +39,8 @@ class SearchServiceTest {
     private StoreRepository storeRepository;
     @Mock
     private SearchHistoryRepository searchHistoryRepository;
+    @Mock
+    private PopularKeywordRepository popularKeywordRepository;
 
     @InjectMocks
     private SearchService searchService;
@@ -214,8 +220,8 @@ class SearchServiceTest {
         List<SearchHistory> limitedSearchHistories = searchHistories.subList(0, 10);
         when(searchHistoryRepository.keywordFindByMember(any(Member.class))).thenReturn(limitedSearchHistories);
 
-
-        List<String> keywords = searchService.searchKeyword(member);
+        Map<String, List<String>> result = searchService.searchKeyword(member);
+        List<String> keywords = result.get("userSearchHistory");
 
         System.out.println("검색어 목록: " + keywords);
 
@@ -234,7 +240,8 @@ class SearchServiceTest {
 
         when(searchHistoryRepository.keywordFindByMember(any())).thenReturn(Collections.emptyList());
 
-        List<String> keywords = searchService.searchKeyword(member);
+        Map<String, List<String>> result = searchService.searchKeyword(member);
+        List<String> keywords = result.get("userSearchHistory");
 
         System.out.println("검색어 목록: " + keywords);
 
@@ -242,5 +249,29 @@ class SearchServiceTest {
         assertThat(keywords).isEmpty();
     }
 
-    // []===========================================================================================
+    // [인기 검색어 캐시 저장 테스트] ================================================================
+    @Test
+    void searchStore_Success_InMemoryCache() {
+        String keyword = "카페";
+        int page = 1;
+        int size = 10;
+        Member member = new Member("01012345678", "user1", "password", MemberRole.USER);
+
+        when(storeRepository.findByKeyword(eq(keyword), any())).thenReturn(Page.empty());
+
+        searchService.searchStoreV2(keyword, page, size, member);
+
+        LocalDate today = LocalDate.now();
+        String cacheKey = keyword + "_" + today.toString();
+        PopularKeywordCache cachedKeyword = searchService.getPopularKeywordCache().get(cacheKey);
+
+        assertThat(cachedKeyword).isNotNull();
+        assertThat(cachedKeyword.getKeyword()).isEqualTo(keyword);
+        assertThat(cachedKeyword.getCount()).isEqualTo(1);
+
+        searchService.searchStoreV2(keyword, page, size, member);
+
+        cachedKeyword = searchService.getPopularKeywordCache().get(cacheKey);
+        assertThat(cachedKeyword.getCount()).isEqualTo(2);
+    }
 }
