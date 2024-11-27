@@ -1,5 +1,6 @@
 package com.example.fourchelin.domain.search.service;
 
+import com.example.fourchelin.common.service.CacheService;
 import com.example.fourchelin.domain.member.entity.Member;
 import com.example.fourchelin.domain.search.entity.PopularKeyword;
 import com.example.fourchelin.domain.search.entity.SearchHistory;
@@ -10,7 +11,6 @@ import com.example.fourchelin.domain.store.entity.Store;
 import com.example.fourchelin.domain.store.exception.StoreException;
 import com.example.fourchelin.domain.store.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +31,8 @@ public class SearchService {
     private final StoreRepository storeRepository;
     private final SearchHistoryRepository searchHistoryRepository;
     private final PopularKeywordRepository popularKeywordRepository;
+    private final CacheService cacheService;
+    private final KeywordCacheService keywordCacheService;
 
     @Transactional
     public StorePageResponse searchStore(String keyword, int page, int size, Member member) {
@@ -40,10 +42,13 @@ public class SearchService {
         Page<Store> stores = storeRepository.findByKeyword(keyword, pageable);
         return new StorePageResponse(stores);
     }
+
     @Transactional
     public StorePageResponse searchStoreV2(String keyword, int page, int size, Member member) {
         searchKeywordAndUpdateSearchHistory(keyword, member);
-        saveOrUpdatePopularKeywordWithCache(keyword);
+        keywordCacheService.saveOrUpdateKeywordCountWithCache(keyword, LocalDate.now());
+        // 캐시 저장 확인
+        cacheService.displayCache("keywordCount");
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Store> stores = storeRepository.findByKeyword(keyword, pageable);
         return new StorePageResponse(stores);
@@ -102,23 +107,6 @@ public class SearchService {
         } else {
             PopularKeyword newPopularKeyword = new PopularKeyword(keyword, today);
             popularKeywordRepository.save(newPopularKeyword);
-        }
-    }
-
-    @CachePut(value = "popularKeywords", key = "#keyword + '_' + #today.toString()")
-    public PopularKeyword saveOrUpdatePopularKeywordWithCache(String keyword) {
-        LocalDate today = LocalDate.now().minusDays(2);
-        Optional<PopularKeyword> optionalPopularKeyword = popularKeywordRepository.findByKeywordAndTrendDate(keyword, today);
-
-        if (optionalPopularKeyword.isPresent()) {
-            PopularKeyword popularKeyword = optionalPopularKeyword.get();
-            popularKeyword.incrementCount();
-            popularKeywordRepository.save(popularKeyword);
-            return popularKeyword;
-        } else {
-            PopularKeyword newPopularKeyword = new PopularKeyword(keyword, today);
-            popularKeywordRepository.save(newPopularKeyword);
-            return newPopularKeyword;
         }
     }
 }
