@@ -22,7 +22,7 @@ public class StoreController {
                                                       @RequestParam(required = false) int star,
                                                       @RequestParam(required = false) String status) {
         // 필터링된 업체 리스트 반환
-        StorePageResponse res = searchService.searchStore(keyword, page, size, star,status);
+        StorePageResponse res = storeService.searchStore(keyword, page, size, star,status);
         return new RspTemplate<>(HttpStatus.OK, res);
 
     }

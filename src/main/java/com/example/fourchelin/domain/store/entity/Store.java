@@ -38,7 +38,7 @@ public class Store extends Timestamped {
     @Min(0)
     @Max(4)
     @Column
-    private Integer star;
+    private int star;
 
     @Column
     private LocalDateTime monitoringDate;
