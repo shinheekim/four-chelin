@@ -37,18 +37,15 @@ public class SearchController {
                                                       @RequestParam(defaultValue = "1") int page,
                                                       @RequestParam(defaultValue = "10") int size,
                                                       @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        // 인증된 유저일 경우 member 객체 가져오고 아니면 null
         Member member = (userDetails != null) ? userDetails.getMember() : null;
         StorePageResponse res = searchService.searchStore(keyword, page, size, member);
         return new RspTemplate<>(HttpStatus.OK, res);
     }
-
     @GetMapping("/v2/stores")
     public RspTemplate<StorePageResponse> searchStoreV2(@RequestParam String keyword,
-                                                      @RequestParam(defaultValue = "1") int page,
-                                                      @RequestParam(defaultValue = "10") int size,
-                                                      @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        // 인증된 유저일 경우 member 객체 가져오고 아니면 null
+                                                        @RequestParam(defaultValue = "1") int page,
+                                                        @RequestParam(defaultValue = "10") int size,
+                                                        @AuthenticationPrincipal UserDetailsImpl userDetails) {
         Member member = (userDetails != null) ? userDetails.getMember() : null;
         StorePageResponse res = searchService.searchStoreV2(keyword, page, size, member);
         return new RspTemplate<>(HttpStatus.OK, res);
