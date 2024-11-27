@@ -15,7 +15,7 @@ public class PopularKeyword {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String keyword;
     @Column(nullable = false)
     private Long searchCount;
