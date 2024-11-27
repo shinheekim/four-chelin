@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -14,11 +15,10 @@ import java.util.Optional;
 public class PopularKeywordRepositoryCustomImpl implements PopularKeywordRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
+    private final QPopularKeyword popularKeyword = QPopularKeyword.popularKeyword;
 
     @Override
     public Optional<PopularKeyword> findByKeywordAndTrendDate(String keyword, LocalDate trendDate) {
-        QPopularKeyword popularKeyword = QPopularKeyword.popularKeyword;
-
         PopularKeyword result = queryFactory
                 .selectFrom(popularKeyword)
                 .where(
@@ -29,5 +29,13 @@ public class PopularKeywordRepositoryCustomImpl implements PopularKeywordReposit
 
         return Optional.ofNullable(result);
     }
-
+    @Override
+    public List<String> findTop10PopularKeywords(LocalDate fromDate) {
+        return queryFactory.select(popularKeyword.keyword)
+                .from(popularKeyword)
+                .where(popularKeyword.trendDate.goe(fromDate))
+                .orderBy(popularKeyword.searchCount.desc())
+                .limit(10)
+                .fetch();
+    }
 }

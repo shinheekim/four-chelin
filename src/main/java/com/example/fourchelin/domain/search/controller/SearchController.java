@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/searches")
@@ -24,11 +25,11 @@ public class SearchController {
     private final SearchService searchService;
 
     @GetMapping
-    public RspTemplate<List<String>> searchKeyword(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        // 인증된 유저일 경우 member 객체 가져오고 아니면 null
+    public RspTemplate<Map<String, List<String>>> searchKeyword(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        // 인증된 유저일 경우 member 객체 가져오기, 아니면 null
         Member member = (userDetails != null) ? userDetails.getMember() : null;
-        List<String> res = searchService.searchKeyword(member);
-        return new RspTemplate<>(HttpStatus.OK, res);
+        Map<String, List<String>> searchResults = searchService.searchKeyword(member);
+        return new RspTemplate<>(HttpStatus.OK, searchResults);
     }
 
     @GetMapping("/v1/stores")
