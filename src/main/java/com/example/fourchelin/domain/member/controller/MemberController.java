@@ -11,6 +11,7 @@ import com.example.fourchelin.domain.member.dto.response.LoginResponse;
 import com.example.fourchelin.domain.member.dto.response.SignupResponse;
 import com.example.fourchelin.domain.member.dto.response.UpdateMemberResponse;
 import com.example.fourchelin.domain.member.entity.Member;
+import com.example.fourchelin.common.service.CacheService;
 import com.example.fourchelin.domain.member.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 public class MemberController {
 
     private final MemberService memberService;
+    private final CacheService cacheService;
 
     @PostMapping("/signup")
     public RspTemplate<SignupResponse> signup(@RequestBody @Valid SignupRequest req) {
@@ -66,11 +68,24 @@ public class MemberController {
 
     }
 
-    @GetMapping("")
+    @GetMapping("/v1")
     public RspTemplate<FindMemberResponse> findMember(@AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         Member member = userDetails.getMember();
         FindMemberResponse res = memberService.findMember(member);
+
+        return new RspTemplate<>(HttpStatus.OK, "로그인한 회원정보를 불러왔습니다.", res);
+
+    }
+
+    @GetMapping("/v2")
+    public RspTemplate<FindMemberResponse> findMemberWithCache(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        // 캐시저장소에 저장된 데이터 확인
+        cacheService.displayCache("member");
+
+        Member member = userDetails.getMember();
+        FindMemberResponse res = memberService.findMemberWithCache(member);
 
         return new RspTemplate<>(HttpStatus.OK, "로그인한 회원정보를 불러왔습니다.", res);
 

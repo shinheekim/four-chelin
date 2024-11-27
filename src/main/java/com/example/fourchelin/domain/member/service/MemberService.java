@@ -86,8 +86,19 @@ public class MemberService {
         memberRepository.deleteById(member.getId());
     }
 
-
+    @Transactional(readOnly = true)
     public FindMemberResponse findMember(Member member) {
+
+        Member findMember = memberRepository.findByPhone(member.getPhone()).orElseThrow(() ->
+                new MemberException("회원정보가 존재하지 않습니다.")
+        );
+
+        return FindMemberResponse.from(findMember);
+    }
+
+    @Transactional(readOnly = true)
+    @Cacheable(value = "member", key = "#member.id")
+    public FindMemberResponse findMemberWithCache(Member member) {
 
         Member findMember = memberRepository.findByPhone(member.getPhone()).orElseThrow(() ->
                 new MemberException("회원정보가 존재하지 않습니다.")

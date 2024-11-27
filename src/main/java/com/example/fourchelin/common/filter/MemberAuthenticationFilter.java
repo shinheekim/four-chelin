@@ -18,6 +18,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @RequiredArgsConstructor
 public class MemberAuthenticationFilter extends OncePerRequestFilter {
@@ -59,7 +60,15 @@ public class MemberAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return StringUtils.startsWithIgnoreCase(request.getRequestURI(), "/api/members/signup") ||
-                StringUtils.startsWithIgnoreCase(request.getRequestURI(), "/api/members/login");
+        List<String> excludedPaths = List.of(
+                "/api/members/signup",
+                "/api/members/login",
+                "/actuator",
+                "/favicon.ico"
+        );
+
+        return excludedPaths.stream()
+                .anyMatch(path -> StringUtils.startsWithIgnoreCase(request.getRequestURI(), path));
+
     }
 }
