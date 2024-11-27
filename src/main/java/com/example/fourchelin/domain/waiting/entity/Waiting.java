@@ -52,4 +52,8 @@ public class Waiting extends Timestamped {
         this.waitingNumber = waitingNumber;
         this.personnel = personnel;
     }
+
+    public boolean checkAuthor(Long id) {
+        return this.member.getId().equals(id);
+    }
 }

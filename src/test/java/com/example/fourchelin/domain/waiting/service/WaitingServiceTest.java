@@ -54,7 +54,7 @@ class WaitingServiceTest {
             when(storeRepository.findById(request.storeId())).thenReturn(Optional.of(store));
 
             // when
-            WaitingResponse response = waitingService.createWaiting(request, member);
+            WaitingResponse response = waitingService.create(request, member);
 
             // then
             assertThat(response).isNotNull();
@@ -73,7 +73,7 @@ class WaitingServiceTest {
             when(waitingRepository.existsByMemberIdAndStoreIdAndStatus(member.getId(), 1L, WaitingStatus.WAITING)).thenReturn(true);
 
             // when & then
-            assertThatThrownBy(() -> waitingService.createWaiting(request, member))
+            assertThatThrownBy(() -> waitingService.create(request, member))
                     .isInstanceOf(WaitingAlreadyExistException.class)
                     .hasMessage("이미 예약된 사항이 존재합니다.");
         }
@@ -89,7 +89,7 @@ class WaitingServiceTest {
             when(storeRepository.findById(request.storeId())).thenReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> waitingService.createWaiting(request, member))
+            assertThatThrownBy(() -> waitingService.create(request, member))
                     .isInstanceOf(StoreException.class)
                     .hasMessage("해당 가게가 존재하지 않습니다.");
         }

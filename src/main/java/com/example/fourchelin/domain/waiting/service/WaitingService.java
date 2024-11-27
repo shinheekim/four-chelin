@@ -10,6 +10,8 @@ import com.example.fourchelin.domain.waiting.dto.response.WaitingResponse;
 import com.example.fourchelin.domain.waiting.entity.Waiting;
 import com.example.fourchelin.domain.waiting.enums.WaitingStatus;
 import com.example.fourchelin.domain.waiting.exception.WaitingAlreadyExistException;
+import com.example.fourchelin.domain.waiting.exception.WaitingNotAuthorizedException;
+import com.example.fourchelin.domain.waiting.exception.WaitingNotFoundException;
 import com.example.fourchelin.domain.waiting.repository.WaitingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,7 +30,7 @@ public class WaitingService {
     private final StoreRepository storeRepository;
 
     @Transactional
-    public WaitingResponse createWaiting(WaitingRequest request, Member member) {
+    public WaitingResponse create(WaitingRequest request, Member member) {
         checkWaiting(member.getId(), request.storeId());
 
         Store store = storeRepository.findById(request.storeId())
@@ -50,13 +52,24 @@ public class WaitingService {
         return WaitingResponse.from(waiting);
     }
 
-    public List<WaitingInfoResponse> retrieveInfoListByStatus(Member member, String visit) {
+    public List<WaitingInfoResponse> retrieveAllByStatus(Member member, String visit) {
         // TODO: 방문 카테고리(방문완료, 방문예정, 취소)에 따른 웨이팅 정보 조회
         List<Waiting> waitings = waitingRepository.findAllByMemberIdAndStatus(member.getId(), fromStatus(visit));
 
         return waitings.stream()
                 .map(WaitingInfoResponse::from)
                 .toList();
+    }
+
+    @Transactional
+    public void delete(Long waitingId, Member member) {
+        Waiting waiting = waitingRepository.findById(waitingId)
+                .orElseThrow(() -> new WaitingNotFoundException("해당 웨이팅이 존재하지 않습니다."));
+
+        if (!waiting.checkAuthor(member.getId())) {
+            throw new WaitingNotAuthorizedException("해당 웨이팅을 취소할 권한이 없습니다.");
+        }
+        waitingRepository.delete(waiting);
     }
 
     private void checkWaiting(Long memberId, Long storeId) {
