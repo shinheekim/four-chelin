@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface WaitingRepository extends JpaRepository<Waiting, Long> {
-    boolean existsByMemberAndStatus(Member member, WaitingStatus waitingStatus);
-
-    Long countByStoreAndStatus(Store store, WaitingStatus status);
+    boolean existsByMemberIdAndStoreIdAndStatus(Long memberId, Long storeId, WaitingStatus waitingStatus);
+    Long countByStoreIdAndStatus(Long storeId, WaitingStatus status);
+    List<Waiting> findAllByMemberIdAndStatus(Long memberId, WaitingStatus waitingStatus);
 }

@@ -14,6 +14,7 @@ import com.example.fourchelin.domain.waiting.enums.WaitingType;
 import com.example.fourchelin.domain.waiting.exception.WaitingAlreadyExistException;
 import com.example.fourchelin.domain.waiting.repository.WaitingRepository;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -38,55 +39,59 @@ class WaitingServiceTest {
     @InjectMocks
     private WaitingService waitingService;
 
-    @Test
-    @DisplayName("웨이팅 신청 성공")
-    void createWaiting_Success() {
-        // given
-        WaitingRequest request = new WaitingRequest(WaitingType.MOBILE, WaitingMealType.DINE_IN, 2, 1L);
-        Member member = createMember("01012345678", "nickname", "password", MemberRole.USER);
-        Store store = new Store(1L, "Test Store", "서울시 강남구");
+    @Nested
+    @DisplayName("웨이팅 신청")
+    class waitingService_createWaiting {
+        @Test
+        @DisplayName("웨이팅 신청 성공")
+        void createWaiting_Success() {
+            // given
+            WaitingRequest request = new WaitingRequest(WaitingType.MOBILE, WaitingMealType.DINE_IN, 2, 1L);
+            Member member = createMember("01012345678", "nickname", "password", MemberRole.USER);
+            Store store = new Store(1L, "Test Store", "서울시 강남구");
 
-        when(waitingRepository.existsByMemberAndStatus(member, WaitingStatus.WAITING)).thenReturn(false);
-        when(storeRepository.findById(request.storeId())).thenReturn(Optional.of(store));
+            when(waitingRepository.existsByMemberIdAndStoreIdAndStatus(member.getId(), store.getId(), WaitingStatus.WAITING)).thenReturn(false);
+            when(storeRepository.findById(request.storeId())).thenReturn(Optional.of(store));
 
-        // when
-        WaitingResponse response = waitingService.createWaiting(request, member);
+            // when
+            WaitingResponse response = waitingService.createWaiting(request, member);
 
-        // then
-        assertThat(response).isNotNull();
-        assertThat(response.storeName()).isEqualTo("Test Store");
-        assertThat(response.waitingStatus()).isEqualTo(WaitingStatus.WAITING);
-        verify(waitingRepository, times(1)).save(any(Waiting.class));
-    }
+            // then
+            assertThat(response).isNotNull();
+            assertThat(response.storeName()).isEqualTo("Test Store");
+            assertThat(response.waitingStatus()).isEqualTo(WaitingStatus.WAITING);
+            verify(waitingRepository, times(1)).save(any(Waiting.class));
+        }
 
-    @Test
-    @DisplayName("이미 대기중인 경우 예외 발생")
-    void createWaiting_AlreadyWaiting_Exception() {
-        // given
-        WaitingRequest request = new WaitingRequest(WaitingType.MOBILE, WaitingMealType.DINE_IN, 2, 1L);
-        Member member = createMember("01012345678", "nickname", "password", MemberRole.USER);
+        @Test
+        @DisplayName("이미 대기중인 경우 예외 발생")
+        void createWaiting_AlreadyWaiting_Exception() {
+            // given
+            WaitingRequest request = new WaitingRequest(WaitingType.MOBILE, WaitingMealType.DINE_IN, 2, 1L);
+            Member member = createMember("01012345678", "nickname", "password", MemberRole.USER);
 
-        when(waitingRepository.existsByMemberAndStatus(member, WaitingStatus.WAITING)).thenReturn(true);
+            when(waitingRepository.existsByMemberIdAndStoreIdAndStatus(member.getId(), 1L, WaitingStatus.WAITING)).thenReturn(true);
 
-        // when & then
-        assertThatThrownBy(() -> waitingService.createWaiting(request, member))
-                .isInstanceOf(WaitingAlreadyExistException.class)
-                .hasMessage("이미 예약된 사항이 존재합니다.");
-    }
+            // when & then
+            assertThatThrownBy(() -> waitingService.createWaiting(request, member))
+                    .isInstanceOf(WaitingAlreadyExistException.class)
+                    .hasMessage("이미 예약된 사항이 존재합니다.");
+        }
 
-    @Test
-    @DisplayName("가게가 없는 경우 예외 발생")
-    void createWaiting_StoreNotFound_Exception() {
-        // given
-        WaitingRequest request = new WaitingRequest(WaitingType.MOBILE, WaitingMealType.DINE_IN, 2, 1L);
-        Member member = createMember("01012345678", "nickname", "password", MemberRole.USER);
+        @Test
+        @DisplayName("가게가 없는 경우 예외 발생")
+        void createWaiting_StoreNotFound_Exception() {
+            // given
+            WaitingRequest request = new WaitingRequest(WaitingType.MOBILE, WaitingMealType.DINE_IN, 2, 1L);
+            Member member = createMember("01012345678", "nickname", "password", MemberRole.USER);
 
-        when(waitingRepository.existsByMemberAndStatus(member, WaitingStatus.WAITING)).thenReturn(false);
-        when(storeRepository.findById(request.storeId())).thenReturn(Optional.empty());
+            when(waitingRepository.existsByMemberIdAndStoreIdAndStatus(member.getId(), 1L, WaitingStatus.WAITING)).thenReturn(false);
+            when(storeRepository.findById(request.storeId())).thenReturn(Optional.empty());
 
-        // when & then
-        assertThatThrownBy(() -> waitingService.createWaiting(request, member))
-                .isInstanceOf(StoreException.class)
-                .hasMessage("해당 가게가 존재하지 않습니다.");
+            // when & then
+            assertThatThrownBy(() -> waitingService.createWaiting(request, member))
+                    .isInstanceOf(StoreException.class)
+                    .hasMessage("해당 가게가 존재하지 않습니다.");
+        }
     }
 }
