@@ -67,9 +67,7 @@ public class MemberAuthenticationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         List<String> excludedPaths = List.of(
                 "/api/members/signup",
-                "/api/members/login",
-                "/actuator",
-                "/favicon.ico"
+                "/api/members/login"
         );
 
         return excludedPaths.stream()

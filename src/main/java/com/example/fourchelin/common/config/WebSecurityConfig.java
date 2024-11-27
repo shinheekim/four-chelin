@@ -27,7 +27,7 @@ public class WebSecurityConfig {
         http.csrf((csrf) -> csrf.disable());
 
         http.authorizeHttpRequests((authorization) ->
-                authorization.requestMatchers("/api/members/signup", "/api/members/login", "/actuator/**", "/favicon.ico").permitAll()
+                authorization.requestMatchers("/api/members/signup", "/api/members/login").permitAll()
                         .anyRequest().authenticated()
         );
 
