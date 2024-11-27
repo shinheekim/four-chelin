@@ -14,6 +14,8 @@ import com.example.fourchelin.domain.member.exception.MemberException;
 import com.example.fourchelin.domain.member.repository.MemberRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -46,7 +48,9 @@ public class MemberService {
 
     }
 
+    @CachePut(value = "member", key = "#session.id")
     public LoginResponse login(HttpSession session, LoginRequest req) {
+
         String phone = req.phone();
         String rawPassword = req.password();
 
@@ -58,12 +62,11 @@ public class MemberService {
             throw new MemberException("패스워드가 일치하지 않습니다.");
         }
 
-        session.setAttribute("LOGIN_MEMBER", member);
-
         return LoginResponse.from(member);
 
     }
 
+    @CacheEvict(value = "member", key = "#member.id", beforeInvocation = false)
     public UpdateMemberResponse updateMember(UpdateMemberRequest req, Member member) {
 
         String nickname = req.nickname();

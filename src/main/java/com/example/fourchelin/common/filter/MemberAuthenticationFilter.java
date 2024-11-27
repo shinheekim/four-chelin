@@ -1,7 +1,7 @@
 package com.example.fourchelin.common.filter;
 
 import com.example.fourchelin.common.security.UserDetailsServiceImpl;
-import com.example.fourchelin.domain.member.entity.Member;
+import com.example.fourchelin.common.service.CacheService;
 import com.example.fourchelin.domain.member.exception.MemberException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,6 +24,8 @@ import java.util.List;
 public class MemberAuthenticationFilter extends OncePerRequestFilter {
 
     private final UserDetailsServiceImpl userDetailsService;
+    private final CacheService cacheService;
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
@@ -40,8 +42,11 @@ public class MemberAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        Member member = (Member) session.getAttribute("LOGIN_MEMBER");
-        setAuthentication(member.getId());
+        // 클라이언트의 세션 정보가 캐시 저장소에 저장되어있는지 확인
+        Long memberId = cacheService.getCacheData("member", session.getId())
+                        .orElseThrow(() -> new MemberException("로그아웃 되었습니다. 재로그인 해주세요."));
+
+        setAuthentication(memberId);
 
         chain.doFilter(request, response);
     }

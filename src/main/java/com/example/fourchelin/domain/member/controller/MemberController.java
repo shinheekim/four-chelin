@@ -39,6 +39,9 @@ public class MemberController {
     @PostMapping("/login")
     public RspTemplate<LoginResponse> login(HttpServletRequest httpRequest, @RequestBody @Valid LoginRequest req) {
 
+        // 캐시저장소에 저장된 데이터 확인
+        cacheService.displayCache("member");
+
         HttpSession session = httpRequest.getSession(true);
         LoginResponse res = memberService.login(session, req);
 
@@ -90,7 +93,5 @@ public class MemberController {
         return new RspTemplate<>(HttpStatus.OK, "로그인한 회원정보를 불러왔습니다.", res);
 
     }
-
-
 
 }
