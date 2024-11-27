@@ -1,5 +1,7 @@
 package com.example.fourchelin.common.config;
 
+import com.example.fourchelin.common.exception.CustomAccessDeniedHandler;
+import com.example.fourchelin.common.exception.CustomAuthenticationEntryPoint;
 import com.example.fourchelin.common.filter.MemberAuthenticationFilter;
 import com.example.fourchelin.common.security.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -21,14 +23,23 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         http.csrf((csrf) -> csrf.disable());
         http.sessionManagement((session) ->
                 session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
         );
 
         http.authorizeHttpRequests((authorization) ->
-                authorization.requestMatchers("/api/members/**").permitAll()
+                authorization.requestMatchers("/api/members/**", "/api/searches/**").permitAll()
                         .anyRequest().authenticated()
+        );
+
+        http.exceptionHandling((except) ->
+                except.authenticationEntryPoint(new CustomAuthenticationEntryPoint())
+        );
+
+        http.exceptionHandling((except) ->
+                except.accessDeniedHandler(new CustomAccessDeniedHandler())
         );
 
         http.addFilterBefore(memberAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
