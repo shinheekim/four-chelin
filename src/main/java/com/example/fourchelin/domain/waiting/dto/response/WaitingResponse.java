@@ -12,7 +12,7 @@ public record WaitingResponse(
         WaitingMealType mealType,
         long personnel,
         WaitingType waitingType,
-        long waitingNum,
+        long waitingNumber,
         WaitingStatus waitingStatus
 ) {
     public static WaitingResponse from(Waiting waiting) {
@@ -21,7 +21,7 @@ public record WaitingResponse(
                 .mealType(waiting.getMealType())
                 .personnel(waiting.getPersonnel())
                 .waitingType(waiting.getType())
-                .waitingNum(waiting.getWaitingNumber())
+                .waitingNumber(waiting.getWaitingNumber())
                 .waitingStatus(waiting.getStatus())
                 .build();
     }
