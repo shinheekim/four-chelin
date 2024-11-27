@@ -4,9 +4,13 @@ import com.example.fourchelin.common.baseentity.Timestamped;
 import com.example.fourchelin.domain.store.enums.StoreCategory;
 import com.example.fourchelin.domain.store.enums.StoreStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -31,12 +35,24 @@ public class Store extends Timestamped {
     @Column(nullable = false)
     private String address;
 
+    @Min(0)
+    @Max(4)
     @Column
     private Integer star;
 
-    public Store(Long id, String storeName, String address) {
+    @Column
+    private LocalDateTime monitoringDate;
+
+    @Column
+    private String keyword;
+
+
+    public Store(Long id, String storeName, String address, int star, StoreStatus status, LocalDateTime monitoringDate) {
         this.id = id;
         this.storeName = storeName;
+        this.status = status;
         this.address = address;
+        this.star = star;
+        this.monitoringDate = monitoringDate;
     }
 }

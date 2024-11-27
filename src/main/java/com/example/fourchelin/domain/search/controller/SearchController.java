@@ -20,9 +20,13 @@ public class SearchController {
     @GetMapping("/v1/stores")
     public RspTemplate<StorePageResponse> searchStore(@RequestParam String keyword,
                                                       @RequestParam(defaultValue = "1") int page,
-                                                      @RequestParam(defaultValue = "10") int size) {
-        StorePageResponse res = searchService.searchStore(keyword, page, size);
+                                                      @RequestParam(defaultValue = "10") int size,
+                                                      @RequestParam(required = false) int star,
+                                                      @RequestParam(required = false) String status) {
+        // 필터링된 업체 리스트 반환
+        StorePageResponse res = searchService.searchStore(keyword, page, size, star,status);
         return new RspTemplate<>(HttpStatus.OK, res);
 
     }
+
 }
