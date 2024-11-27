@@ -34,6 +34,9 @@ class WaitingServiceTest {
     @Mock
     private StoreRepository storeRepository;
 
+    @Mock
+    private WaitingQueueService waitingQueueService;
+
     @InjectMocks
     private WaitingService waitingService;
 
@@ -47,6 +50,7 @@ class WaitingServiceTest {
 
         when(waitingRepository.existsByMemberAndStatus(member, WaitingStatus.WAITING)).thenReturn(false);
         when(storeRepository.findById(request.storeId())).thenReturn(Optional.of(store));
+        when(waitingQueueService.sizeOfQueue()).thenReturn(3);
 
         // when
         WaitingResponse response = waitingService.createWaiting(request, member);
@@ -55,6 +59,7 @@ class WaitingServiceTest {
         assertThat(response).isNotNull();
         assertThat(response.storeName()).isEqualTo("Test Store");
         assertThat(response.waitingStatus()).isEqualTo(WaitingStatus.WAITING);
+        assertThat(response.waitingNumber()).isEqualTo(4);
         verify(waitingRepository, times(1)).save(any(Waiting.class));
     }
 
