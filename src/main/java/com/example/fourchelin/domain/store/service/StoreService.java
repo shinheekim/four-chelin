@@ -5,6 +5,8 @@ import com.example.fourchelin.domain.store.entity.Store;
 import com.example.fourchelin.domain.store.enums.StoreStatus;
 import com.example.fourchelin.domain.store.exception.StoreException;
 import com.example.fourchelin.domain.store.repository.StoreRepository;
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvException;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -13,6 +15,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -31,17 +38,19 @@ public class StoreService {
 
     }
 
-    public StorePageResponse searchStore(String keyword, int page, int size, int star, StoreStatus status) {
-        if (keyword == null || keyword.trim().isEmpty()) {
-            throw new StoreException("검색어를 입력해주세요");
-        }
-
+    public StorePageResponse searchStore(int page, int size, Integer star, StoreStatus status) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Store> stores = storeRepository.findByFilters(keyword, star, status, pageable);
+
+        // Repository 메서드 호출
+        Page<Store> stores = storeRepository.findByFilters(
+                star != null ? star : null,
+                status != null ? status : null,
+                pageable
+        );
 
         return new StorePageResponse(stores);
-
     }
+
     //인덱스 생성
     @PostConstruct
     public void initIndexes() {
@@ -91,7 +100,35 @@ public class StoreService {
             throw new StoreException("MySQL 인덱스 생성 중 오류가 발생했습니다.");
         }
     }
+
+    public void insertDataFromCsv(String filePath) {
+        try (CSVReader reader = new CSVReader(new FileReader(filePath))) {
+            List<String[]> rows = reader.readAll();
+            for (int i = 1; i < rows.size(); i++) { // 첫번째 행은 헤더이므로 제외
+                String[] row = rows.get(i);
+
+                String storeName = row[0];
+                String status = row[1];
+                String category = row[2];
+                String address = row[3];
+                Integer star = row[4] != null && !row[4].isEmpty() ? Integer.parseInt(row[4]) : null;
+
+                String sql = """
+                            INSERT INTO store(store_name, status, category, address, star)
+                            VALUES(?,?,?,?,?);
+                        """;
+
+                jdbcTemplate.update(sql, storeName, status, category, address, star);
+            }
+
+            System.out.println("CSV 파일 데이터가 성공적으로 데이터베이스에 삽입");
+        } catch (IOException | CsvException e){
+            throw new StoreException("csv 파일 읽기 중 오류 발생:" + e.getMessage());
+        } catch (Exception e){
+            throw new StoreException("데이터베이스 입력 중 오류 발생 :" + e.getMessage());
+        }
     }
+}
 
 
 
