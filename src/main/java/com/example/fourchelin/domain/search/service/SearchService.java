@@ -1,5 +1,6 @@
 package com.example.fourchelin.domain.search.service;
 
+import com.example.fourchelin.common.service.CacheService;
 import com.example.fourchelin.domain.member.entity.Member;
 import com.example.fourchelin.domain.search.entity.PopularKeyword;
 import com.example.fourchelin.domain.search.entity.SearchHistory;
@@ -30,25 +31,40 @@ public class SearchService {
     private final StoreRepository storeRepository;
     private final SearchHistoryRepository searchHistoryRepository;
     private final PopularKeywordRepository popularKeywordRepository;
+    private final CacheService cacheService;
+    private final KeywordCacheService keywordCacheService;
 
     @Transactional
     public StorePageResponse searchStore(String keyword, int page, int size, Member member) {
-        if (keyword == null || keyword.trim().isEmpty()) {
-            throw new StoreException("검색어를 입력해주세요");
-        }
-        // 인증된 사용자인 경우에만 검색기록 저장
-        if (member != null) {
-            saveOrUpdateSearchHistory(keyword, member);
-        }
+        searchKeywordAndUpdateSearchHistory(keyword, member);
         saveOrUpdatePopularKeyword(keyword);
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Store> stores = storeRepository.findByKeyword(keyword, pageable);
         return new StorePageResponse(stores);
     }
 
+    @Transactional
+    public StorePageResponse searchStoreV2(String keyword, int page, int size, Member member) {
+        searchKeywordAndUpdateSearchHistory(keyword, member);
+        keywordCacheService.saveOrUpdateKeywordCountWithCache(keyword, LocalDate.now());
+        // 캐시 저장 확인
+        cacheService.displayCache("keywordCount");
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Store> stores = storeRepository.findByKeyword(keyword, pageable);
+        return new StorePageResponse(stores);
+    }
+
+    public void searchKeywordAndUpdateSearchHistory(String keyword, Member member) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            throw new StoreException("검색어를 입력해주세요");
+        }
+        if (member != null) {
+            saveOrUpdateSearchHistory(keyword, member);
+        }
+    }
+
     public Map<String, List<String>> searchKeyword(Member member) {
         Map<String, List<String>> result = new HashMap<>();
-        // 사용자 검색 기록 조회
         if (member != null) {
             List<SearchHistory> searchHistories = searchHistoryRepository.keywordFindByMember(member);
             List<String> searchKeywords = searchHistories.stream()
@@ -85,12 +101,10 @@ public class SearchService {
         Optional<PopularKeyword> optionalPopularKeyword = popularKeywordRepository.findByKeywordAndTrendDate(keyword, today);
 
         if (optionalPopularKeyword.isPresent()) {
-            // 기존 키워드가 있는 경우 카운트를 증가시킴
             PopularKeyword popularKeyword = optionalPopularKeyword.get();
             popularKeyword.incrementCount();
             popularKeywordRepository.save(popularKeyword);
         } else {
-            // 키워드가 없는 경우 새로 생성하고 카운트를 1로 설정
             PopularKeyword newPopularKeyword = new PopularKeyword(keyword, today);
             popularKeywordRepository.save(newPopularKeyword);
         }
