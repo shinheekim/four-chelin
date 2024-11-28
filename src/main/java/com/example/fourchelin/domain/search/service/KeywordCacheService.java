@@ -20,20 +20,19 @@ public class KeywordCacheService {
     private final PopularKeywordRepository popularKeywordRepository;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @CachePut(value = "keywordCount", key = "#keyword + '_' + #today.toString()")
+    @CachePut(value = "keywordCounts", key = "#keyword")
     public Long saveOrUpdateKeywordCountWithCache(String keyword, LocalDate today) {
         Cache cache = cacheManager.getCache("keywordCount");
-        String cacheKey = keyword + "_" + today.toString();
         Long newCount = 1L;
 
         if (cache != null) {
-            Long currentCount = cache.get(cacheKey, Long.class);
+            Long currentCount = cache.get(keyword, Long.class);
             if (currentCount != null) {
                 newCount = currentCount + 1;
             }
         }
 
-        cache.put(cacheKey, newCount);
+        cache.put(keyword, newCount);
         return newCount;
     }
 }
