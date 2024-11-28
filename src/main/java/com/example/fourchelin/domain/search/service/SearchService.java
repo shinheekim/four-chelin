@@ -48,7 +48,7 @@ public class SearchService {
         searchKeywordAndUpdateSearchHistory(keyword, member);
         keywordCacheService.saveOrUpdateKeywordCountWithCache(keyword, LocalDate.now());
         // 캐시 저장 확인
-        cacheService.displayCache("keywordCount");
+        cacheService.displayCache("keywordCounts");
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Store> stores = storeRepository.findByKeyword(keyword, pageable);
         return new StorePageResponse(stores);
