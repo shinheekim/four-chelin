@@ -23,6 +23,13 @@ public class SearchController {
 
     private final SearchService searchService;
 
+    // 스케쥴 강제 실행
+    @GetMapping
+    public void runSchedule() {
+        searchService.processCacheAndUpdateDB();
+    }
+
+    // 검색기록, 인기검색어 확인
     @GetMapping("/v1")
     public RspTemplate<Map<String, List<String>>> searchKeyword(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         // 인증된 유저일 경우 member 객체 가져오기, 아니면 null
@@ -31,6 +38,15 @@ public class SearchController {
         return new RspTemplate<>(HttpStatus.OK, searchResults);
     }
 
+    @GetMapping("/v2")
+    public RspTemplate<Map<String, List<String>>> searchKeywordV2(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        // 인증된 유저일 경우 member 객체 가져오기, 아니면 null
+        Member member = (userDetails != null) ? userDetails.getMember() : null;
+        Map<String, List<String>> searchResults = searchService.searchKeywordV2(member);
+        return new RspTemplate<>(HttpStatus.OK, searchResults);
+    }
+
+    // 키워드를 통한 가게 검색
     @GetMapping("/v1/stores")
     public RspTemplate<StorePageResponse> searchStore(@RequestParam String keyword,
                                                       @RequestParam(defaultValue = "1") int page,
