@@ -1,7 +1,6 @@
 package com.example.fourchelin.domain.search.controller;
 
 import com.example.fourchelin.common.security.UserDetailsImpl;
-import com.example.fourchelin.common.service.CacheService;
 import com.example.fourchelin.common.template.RspTemplate;
 import com.example.fourchelin.domain.member.entity.Member;
 import com.example.fourchelin.domain.search.service.SearchService;
