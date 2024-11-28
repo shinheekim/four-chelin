@@ -31,6 +31,13 @@ public class SearchController {
         Map<String, List<String>> searchResults = searchService.searchKeyword(member);
         return new RspTemplate<>(HttpStatus.OK, searchResults);
     }
+    @GetMapping("/v2")
+    public RspTemplate<Map<String, List<String>>> searchKeywordV2(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        // 인증된 유저일 경우 member 객체 가져오기, 아니면 null
+        Member member = (userDetails != null) ? userDetails.getMember() : null;
+        Map<String, List<String>> searchResults = searchService.searchKeywordV2(member);
+        return new RspTemplate<>(HttpStatus.OK, searchResults);
+    }
 
     @GetMapping("/v1/stores")
     public RspTemplate<StorePageResponse> searchStore(@RequestParam String keyword,

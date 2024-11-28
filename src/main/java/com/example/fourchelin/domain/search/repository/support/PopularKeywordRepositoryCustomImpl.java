@@ -8,7 +8,9 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -37,5 +39,22 @@ public class PopularKeywordRepositoryCustomImpl implements PopularKeywordReposit
                 .orderBy(popularKeyword.searchCount.desc())
                 .limit(10)
                 .fetch();
+    }
+    @Override
+    public Map<String, Long> findKeywordCountsForLast7Days() {
+        QPopularKeyword popularKeyword = QPopularKeyword.popularKeyword;
+        LocalDate today = LocalDate.now();
+        LocalDate sevenDaysAgo = today.minusDays(7);
+        return queryFactory
+                .select(popularKeyword.keyword, popularKeyword.searchCount.sum())
+                .from(popularKeyword)
+                .where(popularKeyword.trendDate.between(sevenDaysAgo, today))
+                .groupBy(popularKeyword.keyword)
+                .fetch()
+                .stream()
+                .collect(Collectors.toMap(
+                        tuple -> tuple.get(popularKeyword.keyword),
+                        tuple -> tuple.get(popularKeyword.searchCount.sum())
+                ));
     }
 }
