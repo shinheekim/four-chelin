@@ -31,7 +31,7 @@ public class WaitingService {
 
     @Transactional
     public WaitingResponse create(WaitingRequest request, Member member) {
-        checkWaiting(member.getId(), request.storeId());
+        checkWhetherWaitingExist(member.getId(), request.storeId());
 
         Store store = storeRepository.findById(request.storeId())
                 .orElseThrow(() -> new StoreException("해당 가게가 존재하지 않습니다."));
@@ -72,7 +72,7 @@ public class WaitingService {
         waitingRepository.delete(waiting);
     }
 
-    private void checkWaiting(Long memberId, Long storeId) {
+    private void checkWhetherWaitingExist(Long memberId, Long storeId) {
         if (waitingRepository.existsByMemberIdAndStoreIdAndStatus(memberId, storeId, WaitingStatus.WAITING)) {
             throw new WaitingAlreadyExistException("이미 예약된 사항이 존재합니다.");
         }

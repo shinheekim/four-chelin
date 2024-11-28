@@ -13,4 +13,5 @@ public interface WaitingRepository extends JpaRepository<Waiting, Long> {
     boolean existsByMemberIdAndStoreIdAndStatus(Long memberId, Long storeId, WaitingStatus waitingStatus);
     Long countByStoreIdAndStatus(Long storeId, WaitingStatus status);
     List<Waiting> findAllByMemberIdAndStatus(Long memberId, WaitingStatus waitingStatus);
+    List<Waiting> findAllByStoreIdAndStatus(Long storeId, WaitingStatus waitingStatus);
 }

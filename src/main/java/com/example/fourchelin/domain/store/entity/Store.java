@@ -39,4 +39,9 @@ public class Store extends Timestamped {
         this.storeName = storeName;
         this.address = address;
     }
+
+    public Store(String storeName, String address) {
+        this.storeName = storeName;
+        this.address = address;
+    }
 }
