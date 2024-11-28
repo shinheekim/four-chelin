@@ -11,7 +11,8 @@ import com.example.fourchelin.domain.store.entity.Store;
 import com.example.fourchelin.domain.store.exception.StoreException;
 import com.example.fourchelin.domain.store.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentMap;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +34,7 @@ public class SearchService {
     private final StoreRepository storeRepository;
     private final SearchHistoryRepository searchHistoryRepository;
     private final PopularKeywordRepository popularKeywordRepository;
+    private final CacheManager cacheManager;
     private final CacheService cacheService;
     private final KeywordCacheService keywordCacheService;
 
@@ -91,17 +94,14 @@ public class SearchService {
         } else {
             result.put("userSearchHistory", List.of());
         }
-        LocalDate today = LocalDate.now();
-        LocalDate sevenDaysAgo = today.minusDays(7);
-        List<PopularKeyword> popularKeywordsFromDb = popularKeywordRepository.findByTrendDateBetween(sevenDaysAgo, today);
-
-        Map<String, Long> combinedKeywordCounts = new HashMap<>();
-        for (PopularKeyword popularKeyword : popularKeywordsFromDb) {
-            combinedKeywordCounts.put(popularKeyword.getKeyword(), popularKeyword.getSearchCount());
-        }
-        Map<String, Long> keywordCountsFromCache = getAllKeywordCountsFromCache();
-        if (keywordCountsFromCache != null) {
-            keywordCountsFromCache.forEach((keyword, count) ->
+        cacheService.displayCache("keywordCounts");
+        Map<String, Long> dbKeywordCounts = popularKeywordRepository.findKeywordCountsForLast7Days();
+        System.out.println("dbKeywordCounts : " + dbKeywordCounts);
+        Map<String, Long> cacheKeywordCounts = getAllKeywordCountsFromCache();
+        System.out.println("cacheKeywordCounts : " + cacheKeywordCounts);
+        Map<String, Long> combinedKeywordCounts = new HashMap<>(dbKeywordCounts);
+        if (cacheKeywordCounts != null) {
+            cacheKeywordCounts.forEach((keyword, count) ->
                     combinedKeywordCounts.merge(keyword, count, Long::sum)
             );
         }
@@ -143,8 +143,18 @@ public class SearchService {
         }
     }
 
-    @Cacheable(value = "keywordCountsByDate")
     public Map<String, Long> getAllKeywordCountsFromCache() {
-        return null;
+        Cache cache = cacheManager.getCache("keywordCounts");
+        if (cache == null) {
+            return Map.of();
+        }
+        Map<String, Long> allKeywordCounts = new HashMap<>();
+        ConcurrentMap<Object, Object> nativeCache = (ConcurrentMap<Object, Object>) cache.getNativeCache();
+        nativeCache.forEach((key, value) -> {
+            if (key instanceof String && value instanceof Long) {
+                allKeywordCounts.put((String) key, (Long) value);
+            }
+        });
+        return allKeywordCounts;
     }
 }
