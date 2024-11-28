@@ -38,4 +38,11 @@ public class PopularKeywordRepositoryCustomImpl implements PopularKeywordReposit
                 .limit(10)
                 .fetch();
     }
+    @Override
+    public List<PopularKeyword> findByTrendDateBetween(LocalDate startDate, LocalDate endDate) {
+        QPopularKeyword popularKeyword = QPopularKeyword.popularKeyword;
+        return queryFactory.selectFrom(popularKeyword)
+                .where(popularKeyword.trendDate.between(startDate, endDate))
+                .fetch();
+    }
 }

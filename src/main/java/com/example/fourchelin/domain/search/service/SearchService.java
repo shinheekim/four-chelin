@@ -47,8 +47,8 @@ public class SearchService {
     @Transactional
     public StorePageResponse searchStoreV2(String keyword, int page, int size, Member member) {
         searchKeywordAndUpdateSearchHistory(keyword, member);
-        keywordCacheService.saveOrUpdateKeywordCountWithCache(keyword);
-        cacheService.displayCache("keywordCount");
+        keywordCacheService.saveOrUpdateKeywordCountWithCache(keyword, LocalDate.now());
+        cacheService.displayCache("keywordCounts");
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Store> stores = storeRepository.findByKeyword(keyword, pageable);
         return new StorePageResponse(stores);
