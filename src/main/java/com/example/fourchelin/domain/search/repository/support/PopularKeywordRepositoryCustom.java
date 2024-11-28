@@ -9,6 +9,10 @@ import java.util.Optional;
 
 public interface PopularKeywordRepositoryCustom {
     Optional<PopularKeyword> findByKeywordAndTrendDate(String keyword, LocalDate trendDate);
+
     List<String> findTop10PopularKeywords(LocalDate sevenDaysAgo);
-    Map<String, Long> findKeywordCountsForLast7Days();
+
+    void saveOrUpdateKeyword(String keyword, Long count, LocalDate today);
+
+    Map<String, Long> findTop10KeywordsForLast7Days();
 }

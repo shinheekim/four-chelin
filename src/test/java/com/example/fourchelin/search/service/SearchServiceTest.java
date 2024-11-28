@@ -234,18 +234,23 @@ class SearchServiceTest {
 
     @Test
     void searchKeyword_Success_NotMember() {
-        // 인증되지 않은 사용자
+        // Arrange: 인증되지 않은 사용자
         Member member = null;
 
-        when(searchHistoryRepository.keywordFindByMember(any())).thenReturn(Collections.emptyList());
-
+        // Act: 서비스 메서드 호출
         Map<String, List<String>> result = searchService.searchKeyword(member);
-        List<String> keywords = result.get("userSearchHistory");
 
-        System.out.println("검색어 목록: " + keywords);
+        // 디버깅 출력
+        System.out.println("userSearchHistory: " + result.get("userSearchHistory"));
+        System.out.println("popularKeywords: " + result.get("popularKeywords"));
 
-        assertThat(keywords).isNotNull();
-        assertThat(keywords).isEmpty();
+        // Assert: 사용자 검색 기록이 비어있는지 확인
+        assertThat(result.get("userSearchHistory")).isNotNull();
+        assertThat(result.get("userSearchHistory")).isEmpty();
+
+        // Assert: 인기 검색어 목록 검증
+        assertThat(result.get("popularKeywords")).isNotNull();
+        assertThat(result.get("popularKeywords")).isNotEmpty();
     }
 
     // [인기 검색어 캐시 저장 테스트] ================================================================
