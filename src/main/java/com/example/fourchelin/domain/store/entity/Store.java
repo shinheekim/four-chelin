@@ -35,24 +35,15 @@ public class Store extends Timestamped {
     @Column(nullable = false)
     private String address;
 
-    @Min(0)
-    @Max(4)
     @Column
     private int star;
 
-    @Column
-    private LocalDateTime monitoringDate;
-
-    @Column
-    private String keyword;
-
-
-    public Store(Long id, String storeName, String address, int star, StoreStatus status, LocalDateTime monitoringDate) {
+    public Store(Long id, String storeName, String address, int star, StoreCategory category, StoreStatus status) {
         this.id = id;
         this.storeName = storeName;
+        this.category = category;
         this.status = status;
         this.address = address;
         this.star = star;
-        this.monitoringDate = monitoringDate;
     }
 }

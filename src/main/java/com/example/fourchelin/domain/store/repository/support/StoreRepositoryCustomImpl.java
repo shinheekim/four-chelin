@@ -21,6 +21,7 @@ public class StoreRepositoryCustomImpl extends QuerydslRepositorySupport impleme
 
     @Autowired
     private JPAQueryFactory jpaQueryFactory;
+    private Object queryFactory;
 
     public StoreRepositoryCustomImpl() {
         super(Store.class);
@@ -40,14 +41,15 @@ public class StoreRepositoryCustomImpl extends QuerydslRepositorySupport impleme
 
     }
 
-    public Page<Store> findByKeyword(String keyword, Pageable pageable) {
-        JPAQuery<Store> query = jpaQueryFactory
-                .selectFrom(store)
-                .where(store.storeName.containsIgnoreCase(keyword));
 
-        List<Store> stores = this.getQuerydsl().applyPagination(pageable, query).fetch();
-        return new PageImpl<>(stores, pageable, query.fetchCount());
-    }
+//    public Page<Store> findByKeyword(String keyword, Pageable pageable) {
+//        JPAQuery<Store> query = jpaQueryFactory
+//                .selectFrom(store)
+//                .where(store.storeName.containsIgnoreCase(keyword));
+//
+//        List<Store> stores = this.getQuerydsl().applyPagination(pageable, query).fetch();
+//        return new PageImpl<>(stores, pageable, query.fetchCount());
+//    }
 
     private BooleanExpression eqCategory(String category) {
         if (category == null) {

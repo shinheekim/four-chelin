@@ -2,6 +2,7 @@ package com.example.fourchelin.domain.store.controller;
 
 import com.example.fourchelin.common.template.RspTemplate;
 import com.example.fourchelin.domain.store.dto.response.StorePageResponse;
+import com.example.fourchelin.domain.store.enums.StoreStatus;
 import com.example.fourchelin.domain.store.service.StoreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,8 +20,8 @@ public class StoreController {
     public RspTemplate<StorePageResponse> searchStore(@RequestParam String keyword,
                                                       @RequestParam(defaultValue = "1") int page,
                                                       @RequestParam(defaultValue = "10") int size,
-                                                      @RequestParam(required = false) int star,
-                                                      @RequestParam(required = false) String status) {
+                                                      @RequestParam(required = false) Integer star,
+                                                      @RequestParam(required = false) StoreStatus status) {
         // 필터링된 업체 리스트 반환
         StorePageResponse res = storeService.searchStore(keyword, page, size, star,status);
         return new RspTemplate<>(HttpStatus.OK, res);

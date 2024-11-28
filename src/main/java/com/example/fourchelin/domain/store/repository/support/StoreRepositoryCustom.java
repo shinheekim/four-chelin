@@ -9,5 +9,5 @@ public interface StoreRepositoryCustom {
 
     Page<Store> findByConditionStores(String keyword, String category, Integer star, Pageable pageable);
 
-    Page<Store> findByfilters(String keyword, Pageable pageable, int star, String status);
+    //<Byte128Vector> Page<Store> findByfilters(String keyword, Pageable pageable, int filterType, String sortOrder);
 }
