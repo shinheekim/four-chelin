@@ -28,9 +28,10 @@ public class PopularKeyword {
         this.searchCount = 1L;
     }
 
+    public void incrementCount() {
+        this.searchCount ++;
+    }
     public void incrementCount(Long count) {
-        if (count != null && count > 0) {
-            this.searchCount += count;
-        }
+        this.searchCount += count;
     }
 }

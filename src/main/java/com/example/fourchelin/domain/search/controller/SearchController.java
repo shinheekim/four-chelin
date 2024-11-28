@@ -1,7 +1,6 @@
 package com.example.fourchelin.domain.search.controller;
 
 import com.example.fourchelin.common.security.UserDetailsImpl;
-import com.example.fourchelin.common.service.CacheService;
 import com.example.fourchelin.common.template.RspTemplate;
 import com.example.fourchelin.domain.member.entity.Member;
 import com.example.fourchelin.domain.search.service.SearchService;
@@ -24,6 +23,12 @@ public class SearchController {
 
     private final SearchService searchService;
 
+    // 스케쥴 강제 실행
+    @GetMapping
+    public void runSchedule() {
+        searchService.processCacheAndUpdateDB();
+    }
+
     // 검색기록, 인기검색어 확인
     @GetMapping("/v1")
     public RspTemplate<Map<String, List<String>>> searchKeyword(@AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -32,6 +37,7 @@ public class SearchController {
         Map<String, List<String>> searchResults = searchService.searchKeyword(member);
         return new RspTemplate<>(HttpStatus.OK, searchResults);
     }
+
     @GetMapping("/v2")
     public RspTemplate<Map<String, List<String>>> searchKeywordV2(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         // 인증된 유저일 경우 member 객체 가져오기, 아니면 null
@@ -50,6 +56,7 @@ public class SearchController {
         StorePageResponse res = searchService.searchStore(keyword, page, size, member);
         return new RspTemplate<>(HttpStatus.OK, res);
     }
+
     @GetMapping("/v2/stores")
     public RspTemplate<StorePageResponse> searchStoreV2(@RequestParam String keyword,
                                                         @RequestParam(defaultValue = "1") int page,

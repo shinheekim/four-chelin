@@ -11,8 +11,6 @@ import com.example.fourchelin.domain.store.entity.Store;
 import com.example.fourchelin.domain.store.exception.StoreException;
 import com.example.fourchelin.domain.store.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentMap;
 
 @Service
 @RequiredArgsConstructor
@@ -51,6 +48,7 @@ public class SearchService {
     public StorePageResponse searchStoreV2(String keyword, int page, int size, Member member) {
         searchKeywordAndUpdateSearchHistory(keyword, member);
         cacheService1.saveOrUpdateKeywordCount(keyword);
+        cacheService1.displayCache("keywordCounts");
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Store> stores = storeRepository.findByKeyword(keyword, pageable);
         return new StorePageResponse(stores);
@@ -91,14 +89,12 @@ public class SearchService {
         } else {
             result.put("userSearchHistory", List.of());
         }
-
-        Map<String, Long> popularKeywords = cacheService2.getAllKeywordCountsFromCache2();
-        List<String> topKeywords = popularKeywords.entrySet().stream()
+        Map<String, Long> top10Keywords = cacheService2.getAllKeywordCountsFromCache2();
+        List<String> topKeywords = top10Keywords.entrySet().stream()
                 .sorted((e1, e2) -> Long.compare(e2.getValue(), e1.getValue()))
                 .map(Map.Entry::getKey)
                 .toList();
-
-        result.put("popularKeywords", topKeywords);
+        result.put("top10Keywords", topKeywords);
         return result;
     }
 
@@ -132,6 +128,7 @@ public class SearchService {
     }
 
     @Scheduled(cron = "0 0 0 * * ?") // 매일 자정 실행
+    @Transactional
     public void processCacheAndUpdateDB() {
         Map<String, Long> cache1Data = cacheService1.getAllKeywordCountsFromCache1();
         LocalDate today = LocalDate.now();
@@ -139,11 +136,8 @@ public class SearchService {
             popularKeywordRepository.saveOrUpdateKeyword(keyword, count, today);
         });
         Map<String, Long> top10Keywords = popularKeywordRepository.findTop10KeywordsForLast7Days();
-        cacheService2.clear("top10Keywords");
-        top10Keywords.forEach(cacheService2::put);
-        cacheService1.clear("popularKeywords");
+        cacheService1.clearKeywordCountsCache();
+        cacheService2.clearTop10KeywordsCache();
+        cacheService2.saveAllKeywordsToCache(top10Keywords);
     }
-
-
-
 }

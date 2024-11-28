@@ -2,6 +2,7 @@ package com.example.fourchelin.domain.search.repository.support;
 
 import com.example.fourchelin.domain.search.entity.PopularKeyword;
 import com.example.fourchelin.domain.search.entity.QPopularKeyword;
+import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import com.querydsl.core.Tuple;
 
 @Repository
 @RequiredArgsConstructor
@@ -58,7 +58,7 @@ public class PopularKeywordRepositoryCustomImpl implements PopularKeywordReposit
             existingKeyword.incrementCount(count);
         } else {
             PopularKeyword newKeyword = new PopularKeyword(keyword, today);
-            newKeyword.incrementCount(count);
+            newKeyword.incrementCount(count - 1);
             entityManager.persist(newKeyword);
         }
     }
