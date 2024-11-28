@@ -94,11 +94,8 @@ public class SearchService {
         } else {
             result.put("userSearchHistory", List.of());
         }
-        cacheService.displayCache("keywordCounts");
         Map<String, Long> dbKeywordCounts = popularKeywordRepository.findKeywordCountsForLast7Days();
-        System.out.println("dbKeywordCounts : " + dbKeywordCounts);
         Map<String, Long> cacheKeywordCounts = getAllKeywordCountsFromCache();
-        System.out.println("cacheKeywordCounts : " + cacheKeywordCounts);
         Map<String, Long> combinedKeywordCounts = new HashMap<>(dbKeywordCounts);
         if (cacheKeywordCounts != null) {
             cacheKeywordCounts.forEach((keyword, count) ->
