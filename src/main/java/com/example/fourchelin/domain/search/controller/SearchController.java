@@ -24,6 +24,7 @@ public class SearchController {
 
     private final SearchService searchService;
 
+    // 검색기록, 인기검색어 확인
     @GetMapping("/v1")
     public RspTemplate<Map<String, List<String>>> searchKeyword(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         // 인증된 유저일 경우 member 객체 가져오기, 아니면 null
@@ -39,6 +40,7 @@ public class SearchController {
         return new RspTemplate<>(HttpStatus.OK, searchResults);
     }
 
+    // 키워드를 통한 가게 검색
     @GetMapping("/v1/stores")
     public RspTemplate<StorePageResponse> searchStore(@RequestParam String keyword,
                                                       @RequestParam(defaultValue = "1") int page,
@@ -48,7 +50,6 @@ public class SearchController {
         StorePageResponse res = searchService.searchStore(keyword, page, size, member);
         return new RspTemplate<>(HttpStatus.OK, res);
     }
-
     @GetMapping("/v2/stores")
     public RspTemplate<StorePageResponse> searchStoreV2(@RequestParam String keyword,
                                                         @RequestParam(defaultValue = "1") int page,

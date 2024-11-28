@@ -1,7 +1,6 @@
 package com.example.fourchelin.search.service;
 
 import com.example.fourchelin.common.service.CacheService;
-import com.example.fourchelin.domain.search.service.KeywordCacheService;
 import com.example.fourchelin.domain.search.service.SearchService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

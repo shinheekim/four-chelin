@@ -16,6 +16,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,9 +35,8 @@ public class SearchService {
     private final StoreRepository storeRepository;
     private final SearchHistoryRepository searchHistoryRepository;
     private final PopularKeywordRepository popularKeywordRepository;
-    private final CacheManager cacheManager;
-    private final CacheService cacheService;
-    private final KeywordCacheService keywordCacheService;
+    private final CacheService cacheService1;
+    private final CacheService cacheService2;
 
     @Transactional
     public StorePageResponse searchStore(String keyword, int page, int size, Member member) {
@@ -50,8 +50,7 @@ public class SearchService {
     @Transactional
     public StorePageResponse searchStoreV2(String keyword, int page, int size, Member member) {
         searchKeywordAndUpdateSearchHistory(keyword, member);
-        keywordCacheService.saveOrUpdateKeywordCountWithCache(keyword, LocalDate.now());
-        cacheService.displayCache("keywordCounts");
+        cacheService1.saveOrUpdateKeywordCount(keyword);
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Store> stores = storeRepository.findByKeyword(keyword, pageable);
         return new StorePageResponse(stores);
@@ -74,8 +73,6 @@ public class SearchService {
                     .map(SearchHistory::getKeyword)
                     .toList();
             result.put("userSearchHistory", searchKeywords);
-        } else {
-            result.put("userSearchHistory", List.of());
         }
         LocalDate sevenDaysAgo = LocalDate.now().minusDays(7);
         List<String> popularKeywords = popularKeywordRepository.findTop10PopularKeywords(sevenDaysAgo);
@@ -94,20 +91,14 @@ public class SearchService {
         } else {
             result.put("userSearchHistory", List.of());
         }
-        Map<String, Long> dbKeywordCounts = popularKeywordRepository.findKeywordCountsForLast7Days();
-        Map<String, Long> cacheKeywordCounts = getAllKeywordCountsFromCache();
-        Map<String, Long> combinedKeywordCounts = new HashMap<>(dbKeywordCounts);
-        if (cacheKeywordCounts != null) {
-            cacheKeywordCounts.forEach((keyword, count) ->
-                    combinedKeywordCounts.merge(keyword, count, Long::sum)
-            );
-        }
-        List<String> popularKeywords = combinedKeywordCounts.entrySet().stream()
+
+        Map<String, Long> popularKeywords = cacheService2.getAllKeywordCountsFromCache2();
+        List<String> topKeywords = popularKeywords.entrySet().stream()
                 .sorted((e1, e2) -> Long.compare(e2.getValue(), e1.getValue()))
-                .limit(10)
                 .map(Map.Entry::getKey)
                 .toList();
-        result.put("popularKeywords", popularKeywords);
+
+        result.put("popularKeywords", topKeywords);
         return result;
     }
 
@@ -140,18 +131,19 @@ public class SearchService {
         }
     }
 
-    public Map<String, Long> getAllKeywordCountsFromCache() {
-        Cache cache = cacheManager.getCache("keywordCounts");
-        if (cache == null) {
-            return Map.of();
-        }
-        Map<String, Long> allKeywordCounts = new HashMap<>();
-        ConcurrentMap<Object, Object> nativeCache = (ConcurrentMap<Object, Object>) cache.getNativeCache();
-        nativeCache.forEach((key, value) -> {
-            if (key instanceof String && value instanceof Long) {
-                allKeywordCounts.put((String) key, (Long) value);
-            }
+    @Scheduled(cron = "0 0 0 * * ?") // 매일 자정 실행
+    public void processCacheAndUpdateDB() {
+        Map<String, Long> cache1Data = cacheService1.getAllKeywordCountsFromCache1();
+        LocalDate today = LocalDate.now();
+        cache1Data.forEach((keyword, count) -> {
+            popularKeywordRepository.saveOrUpdateKeyword(keyword, count, today);
         });
-        return allKeywordCounts;
+        Map<String, Long> top10Keywords = popularKeywordRepository.findTop10KeywordsForLast7Days();
+        cacheService2.clear("top10Keywords");
+        top10Keywords.forEach(cacheService2::put);
+        cacheService1.clear("popularKeywords");
     }
+
+
+
 }
