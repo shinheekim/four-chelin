@@ -36,7 +36,7 @@ public class MemberAuthenticationFilter extends OncePerRequestFilter {
         if (session == null) {
             if(requestURI.startsWith("/api/searches")){ // /api/searches 로 시작하는 API는 익명 사용자도 접근이 가능
                 chain.doFilter(request, response);
-
+                return;
             } else {
                 throw new MemberException("requestURI : " + requestURI + "/인증되지 않은 사용자 입니다.");
             }
