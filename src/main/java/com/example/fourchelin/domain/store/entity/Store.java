@@ -17,18 +17,14 @@ public class Store extends Timestamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String storeName;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private StoreStatus status;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private StoreCategory category;
 
-    @Column(nullable = false)
     private String address;
 
     @Column

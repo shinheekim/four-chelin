@@ -44,8 +44,10 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     testImplementation 'org.assertj:assertj-core:3.21.0'
+    // h2
+    testImplementation 'com.h2database:h2'
 //    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    testImplementation 'org.mockito:mockito-bom:5.7.0'
+
 }
 
 tasks.named('test') {

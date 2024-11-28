@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,9 +29,10 @@ import static com.example.fourchelin.domain.member.entity.Member.createMember;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
+@ActiveProfiles("test")
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
-@Import(JPAConfiguration.class) // JPAQueryFactory Bean를 Test Context에 load해준다.
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE) //, connection = EmbeddedDatabaseConnection.H2
+@Import(JPAConfiguration.class)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class ConcurrencyIssueTest {
 
     @Autowired private WaitingRepository waitingRepository;
@@ -38,7 +40,7 @@ public class ConcurrencyIssueTest {
     @Autowired private MemberRepository memberRepository;
 
     @Test
-    void testConcurrentWaitingNumber() throws InterruptedException {
+    void testConcurrentWaitingNumber() {
         final WaitingService waitingService = new WaitingService(waitingRepository, storeRepository);
         Store store = storeRepository.saveAndFlush(new Store("name", "address"));
 
