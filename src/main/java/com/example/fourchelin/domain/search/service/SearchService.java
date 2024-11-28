@@ -1,6 +1,6 @@
 package com.example.fourchelin.domain.search.service;
 
-import com.example.fourchelin.common.service.CacheService;
+import com.example.fourchelin.common.resolver.CacheService;
 import com.example.fourchelin.domain.member.entity.Member;
 import com.example.fourchelin.domain.search.entity.PopularKeyword;
 import com.example.fourchelin.domain.search.entity.SearchHistory;
@@ -47,8 +47,7 @@ public class SearchService {
     public StorePageResponse searchStoreV2(String keyword, int page, int size, Member member) {
         searchKeywordAndUpdateSearchHistory(keyword, member);
         keywordCacheService.saveOrUpdateKeywordCountWithCache(keyword, LocalDate.now());
-        // 캐시 저장 확인
-        cacheService.displayCache("keywordCount");
+        cacheService.displayCache("keywordCounts");
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Store> stores = storeRepository.findByKeyword(keyword, pageable);
         return new StorePageResponse(stores);
@@ -109,4 +108,5 @@ public class SearchService {
             popularKeywordRepository.save(newPopularKeyword);
         }
     }
+
 }

@@ -4,7 +4,6 @@ import com.example.fourchelin.common.exception.CustomAccessDeniedHandler;
 import com.example.fourchelin.common.exception.CustomAuthenticationEntryPoint;
 import com.example.fourchelin.common.filter.MemberAuthenticationFilter;
 import com.example.fourchelin.common.security.UserDetailsServiceImpl;
-import com.example.fourchelin.common.service.CacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebSecurityConfig {
 
     private final UserDetailsServiceImpl userDetailsService;
-    private final CacheService cacheService;
+//    private final RedisCacheResolver redisCacheResolver;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -46,7 +45,7 @@ public class WebSecurityConfig {
 
     @Bean
     public MemberAuthenticationFilter memberAuthenticationFilter() {
-        return new MemberAuthenticationFilter(userDetailsService, cacheService);
+        return new MemberAuthenticationFilter(userDetailsService);
     }
 
     @Bean
