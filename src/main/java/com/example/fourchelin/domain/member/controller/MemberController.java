@@ -44,6 +44,8 @@ public class MemberController {
         cacheService.displayCache("member");
 
         HttpSession session = httpRequest.getSession(true);
+        String sessionId = session.getId();
+        httpResponse.setHeader("X-Session-ID", sessionId);
         LoginResponse res = memberService.login(session, req);
 
         return new RspTemplate<>(HttpStatus.OK, "로그인에 성공하였습니다.", res);

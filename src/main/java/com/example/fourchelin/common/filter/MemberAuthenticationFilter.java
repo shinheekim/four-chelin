@@ -33,6 +33,7 @@ public class MemberAuthenticationFilter extends OncePerRequestFilter {
 
         String requestURI = request.getRequestURI();
         HttpSession session = request.getSession(false); // Session 정보를 가져오는데 없으면 세션을 새로 생성X
+        String sessionId = request.getHeader("X-Session-ID");
 
         if (session == null) {
             if(requestURI.startsWith("/api/searches")){ // /api/searches 로 시작하는 API는 익명 사용자도 접근이 가능
@@ -45,7 +46,7 @@ public class MemberAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // 클라이언트의 세션 정보가 캐시 저장소에 저장되어있는지 확인
-        Long memberId = cacheService.getCacheData("loginMember", session.getId())
+        Long memberId = cacheService.getCacheData("loginMember", sessionId)
                         .orElseThrow(() -> new MemberException("로그아웃 되었습니다. 재로그인 해주세요."));
 
         setAuthentication(memberId);
