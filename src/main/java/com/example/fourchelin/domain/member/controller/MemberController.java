@@ -14,6 +14,7 @@ import com.example.fourchelin.domain.member.dto.response.UpdateMemberResponse;
 import com.example.fourchelin.domain.member.entity.Member;
 import com.example.fourchelin.domain.member.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,7 @@ public class MemberController {
     }
 
     @PostMapping("/login")
-    public RspTemplate<LoginResponse> login(HttpServletRequest httpRequest, @RequestBody @Valid LoginRequest req) {
+    public RspTemplate<LoginResponse> login(HttpServletRequest httpRequest, HttpServletResponse httpResponse, @RequestBody @Valid LoginRequest req) {
 
         // 캐시저장소에 저장된 데이터 확인
         cacheService.displayCache("member");
