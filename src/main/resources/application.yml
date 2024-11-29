@@ -6,6 +6,11 @@ spring:
     username: ${spring.datasource.username}
     password: ${spring.datasource.password}
     driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      host: localhost
+      password: ${spring.data.redis.password}
+      port: 6379
   jpa:
     database: mysql
     hibernate:
@@ -15,3 +20,4 @@ spring:
       hibernate:
         format_sql: true
         use_sql_comments: true
+

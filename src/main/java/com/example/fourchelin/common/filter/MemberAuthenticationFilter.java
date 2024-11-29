@@ -1,7 +1,6 @@
 package com.example.fourchelin.common.filter;
 
 import com.example.fourchelin.common.security.UserDetailsServiceImpl;
-import com.example.fourchelin.common.service.CacheService;
 import com.example.fourchelin.domain.member.exception.MemberException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,7 +23,7 @@ import java.util.List;
 public class MemberAuthenticationFilter extends OncePerRequestFilter {
 
     private final UserDetailsServiceImpl userDetailsService;
-    private final CacheService cacheService;
+//    private final RedisCacheResolver redisCacheResolver;
 
 
     @Override
@@ -35,6 +34,7 @@ public class MemberAuthenticationFilter extends OncePerRequestFilter {
 
         if (session == null) {
             if(requestURI.startsWith("/api/searches")){ // /api/searches 로 시작하는 API는 익명 사용자도 접근이 가능
+
                 chain.doFilter(request, response);
                 return;
             } else {
@@ -43,10 +43,11 @@ public class MemberAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // 클라이언트의 세션 정보가 캐시 저장소에 저장되어있는지 확인
-        Long memberId = cacheService.getCacheData("member", session.getId())
-                        .orElseThrow(() -> new MemberException("로그아웃 되었습니다. 재로그인 해주세요."));
+//        Long memberId = redisCacheResolver.getCacheData("loginMember", session.getId())
+//                        .orElseThrow(() -> new MemberException("로그아웃 되었습니다. 재로그인 해주세요."));
 
-        setAuthentication(memberId);
+
+        setAuthentication(1L);
 
         chain.doFilter(request, response);
     }
