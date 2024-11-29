@@ -15,7 +15,7 @@ import com.example.fourchelin.domain.waiting.exception.WaitingNotFoundException;
 import com.example.fourchelin.domain.waiting.repository.WaitingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -30,8 +30,8 @@ public class WaitingService {
     private final WaitingRepository waitingRepository;
     private final StoreRepository storeRepository;
 
-    @Transactional
-    @RedissonLock(value = "#storeId")
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @RedissonLock(value = "#request.storeId()")
     public Long create(WaitingRequest request, Member member) {
         checkWhetherWaitingExist(member.getId(), request.storeId());
 

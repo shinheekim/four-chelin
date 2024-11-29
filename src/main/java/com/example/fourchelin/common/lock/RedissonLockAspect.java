@@ -26,26 +26,46 @@ public class RedissonLockAspect {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
         RedissonLock annotation = method.getAnnotation(RedissonLock.class);
+
+        log.info("Lock 획득전={}", annotation.value());
         String lockKey = method.getName() + ":" + annotation.value();
         log.info("Lock 획득={}", lockKey);
         RLock lock = redissonClient.getLock(lockKey);
 
-        try {
-            boolean lockable = lock.tryLock(annotation.waitTime(), annotation.leaseTime(), TimeUnit.MILLISECONDS);
-            if (!lockable) {
-                log.info("Lock 획득 실패={}", lockKey);
-                return null; // 락을 획득하지 못했을 경우 null 반환
+        int maxRetries = 3;
+        int attempt = 0;
+        boolean lockAcquired = false;
+        Object waitingNumber = null;
+
+        while (attempt < maxRetries) {
+            try {
+                lockAcquired = lock.tryLock(annotation.waitTime(), annotation.leaseTime(), TimeUnit.MILLISECONDS);
+                if (lockAcquired) {
+                    log.info("Lock acquired on attempt {}: {}", (attempt + 1), lockKey);
+                    log.info("로직 수행");
+                    waitingNumber = joinPoint.proceed();
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.error("에러 발생 (InterruptedException): {}", lockKey, e);
+                break;
+            } finally {
+                attempt++;
+                if (!lockAcquired) {
+                    log.warn("Failed to acquire lock on attempt {}: {}", attempt, lockKey);
+                    if (attempt < maxRetries) {
+                        Thread.sleep(500);
+                    }
+                } else {
+                    log.info("Lock 해제");
+                    lock.unlock();
+                    break;
+                }
             }
-            log.info("로직 수행");
-            return joinPoint.proceed(); // 비즈니스 로직 실행
-        } catch (InterruptedException e) {
-            log.info("에러 발생");
-            throw e;
-        } finally {
-            log.info("락 해제");
-            lock.unlock();
         }
+        return waitingNumber;
     }
+}
 
 
 /*    @Around("@annotation(com.example.fourchelin.common.lock.RedissonLock)")
@@ -75,5 +95,3 @@ public class RedissonLockAspect {
         }
 
     }*/
-
-}
