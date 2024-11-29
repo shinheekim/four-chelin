@@ -1,6 +1,7 @@
 package com.example.fourchelin.domain.member.controller;
 
 import com.example.fourchelin.common.security.UserDetailsImpl;
+import com.example.fourchelin.common.service.CacheService;
 import com.example.fourchelin.common.template.RspTemplate;
 import com.example.fourchelin.domain.member.dto.request.DeleteMemberRequest;
 import com.example.fourchelin.domain.member.dto.request.LoginRequest;
@@ -11,7 +12,6 @@ import com.example.fourchelin.domain.member.dto.response.LoginResponse;
 import com.example.fourchelin.domain.member.dto.response.SignupResponse;
 import com.example.fourchelin.domain.member.dto.response.UpdateMemberResponse;
 import com.example.fourchelin.domain.member.entity.Member;
-import com.example.fourchelin.common.service.CacheService;
 import com.example.fourchelin.domain.member.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
