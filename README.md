@@ -46,6 +46,9 @@
 
 ![store.jpeg](img%2Fstore.jpeg)
 
+### 웨이팅 등록
+![가게 예약.png](img%2F%EA%B0%80%EA%B2%8C%20%EC%98%88%EC%95%BD.png)
+
 ## 회원 관리 API 명세
 
 <table>
