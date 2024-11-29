@@ -1,6 +1,6 @@
 # Index, Cache, 동시성 제어를 활용한 성능 개선 프로젝트
 
-![fourchelin_ERD.jpeg](img%2Ffourchelin_ERD.jpeg)
+![캐치테이블.jpg](img%2F%EC%BA%90%EC%B9%98%ED%85%8C%EC%9D%B4%EB%B8%94.jpg)
 
 ## 프로젝트 목표
 
