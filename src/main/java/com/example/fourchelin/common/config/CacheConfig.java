@@ -1,5 +1,6 @@
 package com.example.fourchelin.common.config;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
@@ -20,6 +21,7 @@ import java.time.Duration;
 public class CacheConfig {
 
     @Bean
+    @Qualifier("redisCacheManager")
     public CacheManager redisCacheManager(RedisConnectionFactory connectionFactory) {
         return RedisCacheManager.RedisCacheManagerBuilder
                 .fromConnectionFactory(connectionFactory)
@@ -39,5 +41,4 @@ public class CacheConfig {
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()))
                 .entryTtl(Duration.ofDays(1));
     }
-
 }
