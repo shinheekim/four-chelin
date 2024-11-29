@@ -1,7 +1,7 @@
 package com.example.fourchelin.common.service;
 
 import com.example.fourchelin.domain.member.dto.response.LoginResponse;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
@@ -14,10 +14,14 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
 
 @Service
-@RequiredArgsConstructor
 public class CacheService {
 
+
     private final CacheManager cacheManager;
+
+    public CacheService(CacheManager cacheManager) {
+        this.cacheManager = cacheManager;
+    }
 
     public void displayCache(String cacheName) {
         Cache cache = cacheManager.getCache(cacheName);

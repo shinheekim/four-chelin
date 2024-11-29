@@ -48,7 +48,7 @@ public class MemberService {
 
     }
 
-    @CachePut(value = "loginMember", key = "#session.id", cacheResolver = "redisCacheResolver")
+    @CachePut(value = "loginMember", key = "#session.id", cacheManager = "redisCacheManager")
     public LoginResponse login(HttpSession session, LoginRequest req) {
 
         String phone = req.phone();
@@ -66,7 +66,7 @@ public class MemberService {
 
     }
 
-    @CacheEvict(value = "member", key = "#member.id", beforeInvocation = false, cacheResolver = "defaultCacheResolver")
+    @CacheEvict(value = "member", key = "#member.id", beforeInvocation = false, cacheManager = "defaultCacheManager")
     public UpdateMemberResponse updateMember(UpdateMemberRequest req, Member member) {
 
         String nickname = req.nickname();
@@ -78,7 +78,7 @@ public class MemberService {
 
     }
 
-    @CacheEvict(value = "member", key = "#member.id", beforeInvocation = false, cacheResolver = "defaultCacheResolver")
+    @CacheEvict(value = "member", key = "#member.id", beforeInvocation = false, cacheManager = "defaultCacheManager")
     public void deleteMember(DeleteMemberRequest req, Member member) {
 
         String rawPassword = req.password();
@@ -101,7 +101,7 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "member", key = "#member.id", cacheResolver = "defaultCacheResolver")
+    @Cacheable(value = "member", key = "#member.id", cacheManager = "defaultCacheManager")
     public FindMemberResponse findMemberWithCache(Member member) {
 
         Member findMember = memberRepository.findByPhone(member.getPhone()).orElseThrow(() ->
