@@ -22,12 +22,40 @@ public class RedissonLockAspect {
     private final RedissonClient redissonClient;
 
     @Around("@annotation(com.example.fourchelin.common.lock.RedissonLock)")
+    public Object redissonLock(ProceedingJoinPoint joinPoint) throws Throwable {
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        Method method = signature.getMethod();
+        RedissonLock annotation = method.getAnnotation(RedissonLock.class);
+        String lockKey = method.getName() + ":" + annotation.value();
+        log.info("Lock 획득={}", lockKey);
+        RLock lock = redissonClient.getLock(lockKey);
+
+        try {
+            boolean lockable = lock.tryLock(annotation.waitTime(), annotation.leaseTime(), TimeUnit.MILLISECONDS);
+            if (!lockable) {
+                log.info("Lock 획득 실패={}", lockKey);
+                return null; // 락을 획득하지 못했을 경우 null 반환
+            }
+            log.info("로직 수행");
+            return joinPoint.proceed(); // 비즈니스 로직 실행
+        } catch (InterruptedException e) {
+            log.info("에러 발생");
+            throw e;
+        } finally {
+            log.info("락 해제");
+            lock.unlock();
+        }
+    }
+
+
+/*    @Around("@annotation(com.example.fourchelin.common.lock.RedissonLock)")
     public void redissonLock(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
         RedissonLock annotation = method.getAnnotation(RedissonLock.class);
-        String lockKey = method.getName() + CustomSpringELParser.getDynamicValue(signature.getParameterNames(), joinPoint.getArgs(), annotation.value());
-
+//        String lockKey = method.getName() + CustomSpringELParser.getDynamicValue(signature.getParameterNames(), joinPoint.getArgs(), annotation.value());
+        String lockKey = method.getName() + ":" + annotation.value();
+        log.info("Lock 획득={}", lockKey);
         RLock lock = redissonClient.getLock(lockKey);
 
         try {
@@ -46,6 +74,6 @@ public class RedissonLockAspect {
             lock.unlock();
         }
 
-    }
+    }*/
 
 }

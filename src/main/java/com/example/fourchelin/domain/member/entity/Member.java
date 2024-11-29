@@ -34,6 +34,14 @@ public class Member extends Timestamped {
         this.role = role;
     }
 
+    public Member(Long id, String phone, String nickname, String password, MemberRole role) {
+        this.id = id;
+        this.phone = phone;
+        this.nickname = nickname;
+        this.password = password;
+        this.role = role;
+    }
+
     public static Member createMember(String phone, String nickname, String password, MemberRole role) {
         return new Member(phone, nickname, password, role);
     }

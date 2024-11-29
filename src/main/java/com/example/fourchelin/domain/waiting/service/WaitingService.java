@@ -7,7 +7,6 @@ import com.example.fourchelin.domain.store.exception.StoreException;
 import com.example.fourchelin.domain.store.repository.StoreRepository;
 import com.example.fourchelin.domain.waiting.dto.request.WaitingRequest;
 import com.example.fourchelin.domain.waiting.dto.response.WaitingInfoResponse;
-import com.example.fourchelin.domain.waiting.dto.response.WaitingResponse;
 import com.example.fourchelin.domain.waiting.entity.Waiting;
 import com.example.fourchelin.domain.waiting.enums.WaitingStatus;
 import com.example.fourchelin.domain.waiting.exception.WaitingAlreadyExistException;
@@ -16,6 +15,7 @@ import com.example.fourchelin.domain.waiting.exception.WaitingNotFoundException;
 import com.example.fourchelin.domain.waiting.repository.WaitingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -32,7 +32,7 @@ public class WaitingService {
 
     @Transactional
     @RedissonLock(value = "#storeId")
-    public WaitingResponse create(WaitingRequest request, Member member) {
+    public Long create(WaitingRequest request, Member member) {
         checkWhetherWaitingExist(member.getId(), request.storeId());
 
         Store store = storeRepository.findById(request.storeId())
@@ -51,7 +51,13 @@ public class WaitingService {
                 .build();
 
         waitingRepository.save(waiting);
-        return WaitingResponse.from(waiting);
+        return waiting.getWaitingNumber();
+    }
+
+    private void checkWhetherWaitingExist(Long memberId, Long storeId) {
+        if (waitingRepository.existsByMemberIdAndStoreIdAndStatus(memberId, storeId, WaitingStatus.WAITING)) {
+            throw new WaitingAlreadyExistException("이미 예약된 사항이 존재합니다.");
+        }
     }
 
     public List<WaitingInfoResponse> retrieveAllByStatus(Member member, String visit) {
@@ -74,11 +80,6 @@ public class WaitingService {
         waitingRepository.delete(waiting);
     }
 
-    private void checkWhetherWaitingExist(Long memberId, Long storeId) {
-        if (waitingRepository.existsByMemberIdAndStoreIdAndStatus(memberId, storeId, WaitingStatus.WAITING)) {
-            throw new WaitingAlreadyExistException("이미 예약된 사항이 존재합니다.");
-        }
-    }
 
 /*    @Transactional
     public Long createWithRedisLock(WaitingRequest request, Member member) {

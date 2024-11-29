@@ -1,7 +1,6 @@
 package com.example.fourchelin.common.filter;
 
 import com.example.fourchelin.common.security.UserDetailsServiceImpl;
-import com.example.fourchelin.common.service.CacheService;
 import com.example.fourchelin.domain.member.exception.MemberException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,7 +23,7 @@ import java.util.List;
 public class MemberAuthenticationFilter extends OncePerRequestFilter {
 
     private final UserDetailsServiceImpl userDetailsService;
-    private final CacheService cacheService;
+//    private final RedisCacheResolver redisCacheResolver;
 
 
     @Override

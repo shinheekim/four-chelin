@@ -40,4 +40,13 @@ public class Store extends Timestamped {
         this.storeName = storeName;
         this.address = address;
     }
+
+    public Store(Long id, String storeName, StoreStatus status, StoreCategory category, String address, int star) {
+        this.id = id;
+        this.storeName = storeName;
+        this.status = status;
+        this.category = category;
+        this.address = address;
+        this.star = star;
+    }
 }

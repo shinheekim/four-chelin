@@ -21,10 +21,10 @@ public class WaitingController {
     private final WaitingService waitingService;
 
     @PostMapping
-    public RspTemplate<WaitingResponse> createWaiting(
+    public RspTemplate<Long> createWaiting(
             @Valid @RequestBody WaitingRequest request,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        WaitingResponse response = waitingService.create(request, userDetails.getMember());
+        Long response = waitingService.create(request, userDetails.getMember());
         return new RspTemplate<>(HttpStatus.CREATED, "성공적으로 웨이팅 신청되었습니다.", response);
     }
 

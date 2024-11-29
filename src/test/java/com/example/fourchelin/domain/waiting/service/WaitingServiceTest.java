@@ -55,12 +55,12 @@ class WaitingServiceTest {
             when(storeRepository.findById(request.storeId())).thenReturn(Optional.of(store));
 
             // when
-            WaitingResponse response = waitingService.create(request, member);
+            Long response = waitingService.create(request, member);
 
             // then
             assertThat(response).isNotNull();
-            assertThat(response.storeName()).isEqualTo("Test Store");
-            assertThat(response.waitingStatus()).isEqualTo(WaitingStatus.WAITING);
+/*            assertThat(response.storeName()).isEqualTo("Test Store");
+            assertThat(response.waitingStatus()).isEqualTo(WaitingStatus.WAITING);*/
             verify(waitingRepository, times(1)).save(any(Waiting.class));
         }
 

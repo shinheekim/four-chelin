@@ -30,6 +30,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'at.favre.lib:bcrypt:0.10.2'
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     compileOnly 'org.projectlombok:lombok'
@@ -48,8 +49,8 @@ dependencies {
     // h2
     testImplementation 'com.h2database:h2'
     // redis
-/*    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    compileOnly 'io.lettuce:lettuce-core:6.3.2.RELEASE'*/
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+//    compileOnly 'io.lettuce:lettuce-core:6.3.2.RELEASE'
     // redisson
     implementation 'org.redisson:redisson-spring-boot-starter:3.16.0'
 }
