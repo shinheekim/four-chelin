@@ -12,13 +12,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.List;
 
 @Service
@@ -28,15 +26,6 @@ public class StoreService {
     private final JdbcTemplate jdbcTemplate;
     private final StoreRepository storeRepository;
 
-    public StorePageResponse findStores(String keyword, String category, Integer star, int page, Integer size, String criteria) {
-
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Order.desc(criteria)));
-
-        Page<Store> stores = storeRepository.findByConditionStores(keyword, category, star, pageable);
-
-        return new StorePageResponse(stores);
-
-    }
 
     public StorePageResponse searchStore(int page, int size, Integer star, StoreStatus status) {
         Pageable pageable = PageRequest.of(page - 1, size);
@@ -104,28 +93,46 @@ public class StoreService {
     public void insertDataFromCsv(String filePath) {
         try (CSVReader reader = new CSVReader(new FileReader(filePath))) {
             List<String[]> rows = reader.readAll();
-            for (int i = 1; i < rows.size(); i++) { // 첫번째 행은 헤더이므로 제외
-                String[] row = rows.get(i);
 
-                String storeName = row[0];
-                String status = row[1];
-                String category = row[2];
-                String address = row[3];
-                Integer star = row[4] != null && !row[4].isEmpty() ? Integer.parseInt(row[4]) : null;
+            for (int i = 1; i < rows.size(); i++) { // 첫 번째 행은 헤더이므로 제외
+                try {
+                    String[] row = rows.get(i);
 
-                String sql = """
-                            INSERT INTO store(store_name, status, category, address, star)
-                            VALUES(?,?,?,?,?);
-                        """;
+                    // CSV 데이터 읽기
+                    Long id = row[0] != null && !row[0].isEmpty() ? Long.parseLong(row[0]) : null;
+                    String address = row[1];
+                    String storeName = row[2];
+                    String createAt = row[3];
+                    String updateAt = row[4];
+                    Integer star = row[5] != null && !row[5].isEmpty() ? Integer.parseInt(row[5]) : null;
+                    String category = row[6];
+                    String status = row[7];
 
-                jdbcTemplate.update(sql, storeName, status, category, address, star);
+                    // 유효성 검증
+                    if (storeName == null || storeName.isEmpty()) {
+                        throw new StoreException("store_name 값이 비어 있습니다. 행: " + i);
+                    }
+                    if (status == null || (!status.equals("OPEN") && !status.equals("CLOSED"))) {
+                        throw new StoreException("잘못된 status 값: " + status + " 행: " + i);
+                    }
+
+                    // SQL 실행
+                    String sql = """
+                        INSERT INTO store (id, address, store_name, create_at, update_at, star, category, status)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+                    """;
+                    jdbcTemplate.update(sql, id, address, storeName, createAt, updateAt, star, category, status);
+
+                } catch (Exception e) {
+                    // 특정 행 처리 실패 시 로그 출력
+                    System.err.println("행 처리 중 오류 발생 (행 번호: " + i + "): " + e.getMessage());
+                }
             }
 
-            System.out.println("CSV 파일 데이터가 성공적으로 데이터베이스에 삽입");
-        } catch (IOException | CsvException e){
-            throw new StoreException("csv 파일 읽기 중 오류 발생:" + e.getMessage());
-        } catch (Exception e){
-            throw new StoreException("데이터베이스 입력 중 오류 발생 :" + e.getMessage());
+            System.out.println("CSV 파일 데이터가 성공적으로 데이터베이스에 삽입되었습니다.");
+
+        } catch (IOException | CsvException e) {
+            throw new StoreException("CSV 파일 읽기 중 오류 발생");
         }
     }
 }

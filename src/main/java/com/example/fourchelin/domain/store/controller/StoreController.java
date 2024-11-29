@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+
 @RestController
 @RequestMapping("/api/stores")
 @RequiredArgsConstructor
@@ -17,7 +19,7 @@ public class StoreController {
 
     private final StoreService storeService;
 
-    @GetMapping("/v1/stores")
+    @GetMapping
     public RspTemplate<StorePageResponse> searchStore(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -33,27 +35,21 @@ public class StoreController {
         return new RspTemplate<>(HttpStatus.OK, res);
     }
 
-    @GetMapping()
-    public RspTemplate<StorePageResponse> findStores(@RequestParam(required = false) String keyword,
-                                                     @RequestParam(required = false) String category,
-                                                     @RequestParam(required = false) Integer star,
-                                                     @RequestParam(required = false, defaultValue = "1") int page,
-                                                     @RequestParam(required = false, defaultValue = "10") int size,
-                                                     @RequestParam(required = false, defaultValue = "updateAt") String criteria) {
-
-        StorePageResponse res = storeService.findStores(keyword, category, star, page, size, criteria);
-
-        return new RspTemplate<>(HttpStatus.OK, "조회하신 가게 리스트 입니다.", res);
-    }
 
     //csv를 database에 입력
     @PostMapping("/collection")
-    public RspTemplate<Void> uploadCsvToDatabase(@RequestParam String filePath) {
+    public RspTemplate<Void> uploadCsvToDatabase(@RequestParam("file") MultipartFile file) {
         try {
-            storeService.insertDataFromCsv(filePath);
-            return new RspTemplate<>(HttpStatus.OK, "csv 파일 데이터가 성공적으로 데이터베이스에 입력되었습니다");
-        }catch (Exception e){
-            return new RspTemplate<>(HttpStatus.INTERNAL_SERVER_ERROR,"csv 파일 입력 중 오류 발생:"+e.getMessage());
+            // 업로드된 파일을 임시 경로에 저장
+            File tempFile = File.createTempFile("uploaded-", ".csv");
+            file.transferTo(tempFile);
+
+            // 서비스 호출
+            storeService.insertDataFromCsv(tempFile.getAbsolutePath());
+            return new RspTemplate<>(HttpStatus.OK, "CSV 파일 데이터가 성공적으로 데이터베이스에 입력되었습니다.");
+        } catch (Exception e) {
+            return new RspTemplate<>(HttpStatus.INTERNAL_SERVER_ERROR, "CSV 파일 처리 중 오류 발생: " + e.getMessage());
         }
+
     }
 }
