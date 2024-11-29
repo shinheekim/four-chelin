@@ -1,5 +1,6 @@
 package com.example.fourchelin.domain.waiting.service;
 
+import com.example.fourchelin.common.lock.RedissonLock;
 import com.example.fourchelin.domain.member.entity.Member;
 import com.example.fourchelin.domain.store.entity.Store;
 import com.example.fourchelin.domain.store.exception.StoreException;
@@ -30,6 +31,7 @@ public class WaitingService {
     private final StoreRepository storeRepository;
 
     @Transactional
+    @RedissonLock(value = "#storeId")
     public WaitingResponse create(WaitingRequest request, Member member) {
         checkWhetherWaitingExist(member.getId(), request.storeId());
 
@@ -77,4 +79,34 @@ public class WaitingService {
             throw new WaitingAlreadyExistException("이미 예약된 사항이 존재합니다.");
         }
     }
+
+/*    @Transactional
+    public Long createWithRedisLock(WaitingRequest request, Member member) {
+        String lockKey = "store:" + request.storeId() + ":waiting";
+
+        redisLockService.executeWithLock(lockKey, () -> {
+            // 중복 예약 확인
+            checkWhetherWaitingExist(member.getId(), request.storeId());
+
+            Store store = storeRepository.findById(request.storeId())
+                    .orElseThrow(() -> new StoreException("해당 가게가 존재하지 않습니다."));
+
+            // 현재 웨이팅 수 계산
+            Long waitingCount = waitingRepository.countByStoreIdAndStatus(store.getId(), WaitingStatus.WAITING);
+
+            Waiting waiting = Waiting.builder()
+                    .member(member)
+                    .store(store)
+                    .type(request.waitingType())
+                    .mealType(request.mealType())
+                    .status(WaitingStatus.WAITING)
+                    .waitingNumber(waitingCount + 1)
+                    .personnel(request.personnel())
+                    .build();
+
+            waitingRepository.save(waiting);
+        });
+
+        return waitingRepository.countByStoreIdAndStatus(request.storeId(), WaitingStatus.WAITING);
+    }*/
 }

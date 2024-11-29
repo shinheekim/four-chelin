@@ -28,6 +28,14 @@ public class WaitingController {
         return new RspTemplate<>(HttpStatus.CREATED, "성공적으로 웨이팅 신청되었습니다.", response);
     }
 
+/*    @PostMapping("/lock")
+    public RspTemplate<Long> createLockWaiting(
+            @Valid @RequestBody WaitingRequest request,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Long response = waitingService.createWithRedisLock(request, userDetails.getMember());
+        return new RspTemplate<>(HttpStatus.CREATED, "성공적으로 웨이팅 신청되었습니다.", response);
+    }*/
+
     @GetMapping
     public RspTemplate<List<WaitingInfoResponse>> retrieveWaitingInfoList(
             @AuthenticationPrincipal UserDetailsImpl userDetails,

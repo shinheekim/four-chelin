@@ -43,11 +43,15 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+    // assertj
     testImplementation 'org.assertj:assertj-core:3.21.0'
     // h2
     testImplementation 'com.h2database:h2'
-//    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-
+    // redis
+/*    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    compileOnly 'io.lettuce:lettuce-core:6.3.2.RELEASE'*/
+    // redisson
+    implementation 'org.redisson:redisson-spring-boot-starter:3.16.0'
 }
 
 tasks.named('test') {
